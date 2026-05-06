@@ -1,0 +1,6 @@
+.opencode-project/secrets/
+.env
+.env.local
+node_modules/
+dist/
+build/
