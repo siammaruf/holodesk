@@ -25,5 +25,5 @@ export const getDataSourceOptions = (configService?: ConfigService) => ({
   password: configService?.get('DATABASE_PASSWORD') || process.env.DATABASE_PASSWORD || 'password',
   database: configService?.get('DATABASE_NAME') || process.env.DATABASE_NAME || 'holodesk',
   entities: [User, Profile, Realm, RealmEmbedding],
-  migrations: [`${__dirname}/../migrations/*{.ts,.js}`],
+  migrations: [`${__dirname}/../migrations/*`],
 });
