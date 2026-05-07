@@ -44,7 +44,7 @@ const ManageChild:React.FC<ManageChildProps> = ({ realmId, startingShareId, star
     }
 
     function copyLink() {
-        const link = (import.meta.env.VITE_BASE_URL || 'http://localhost:3000') + '/play/' + realmId + '?shareId=' + shareId
+        const link = window.location.origin + '/play/' + realmId + '?shareId=' + shareId
         navigator.clipboard.writeText(link)
         toast.success('Link copied!')
     }
@@ -57,7 +57,7 @@ const ManageChild:React.FC<ManageChildProps> = ({ realmId, startingShareId, star
             const { data } = await realmsApi.regenerateShareId(realmId)
             const newShareId = data.share_id
             setShareId(newShareId)
-            const link = (import.meta.env.VITE_BASE_URL || 'http://localhost:3000') + '/play/' + realmId + '?shareId=' + newShareId
+            const link = window.location.origin + '/play/' + realmId + '?shareId=' + newShareId
             navigator.clipboard.writeText(link)
             toast.success('New link copied!')
         } catch (error: any) {

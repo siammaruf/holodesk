@@ -50,7 +50,7 @@ const DesktopRealmItem:React.FC<DesktopRealmItemProps> = ({ name, id, shareId, s
     }
 
     function copyShareLink() {
-        navigator.clipboard.writeText(`${import.meta.env.VITE_BASE_URL || 'http://localhost:3000'}/play/${id}?shareId=${shareId}`)
+        navigator.clipboard.writeText(`${window.location.origin}/play/${id}?shareId=${shareId}`)
         toast.success('Link copied!')
     }
 
