@@ -35,66 +35,75 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function RootLayout() {
+  return (
+    <ModalProvider>
+      <Outlet />
+    </ModalProvider>
+  );
+}
+
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <LandingPage />,
-  },
-  {
-    path: '/signin',
-    element: <SignInPage />,
-  },
-  {
-    path: '/privacy-policy',
-    element: <PrivacyPolicyPage />,
-  },
-  {
-    element: <Layout />,
+    element: <RootLayout />,
     children: [
       {
-        path: '/app',
-        element: (
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        ),
+        path: '/',
+        element: <LandingPage />,
       },
       {
-        path: '/play/:id',
-        element: (
-          <ProtectedRoute>
-            <PlayPage />
-          </ProtectedRoute>
-        ),
+        path: '/signin',
+        element: <SignInPage />,
       },
       {
-        path: '/editor/:id',
-        element: (
-          <ProtectedRoute>
-            <EditorPage />
-          </ProtectedRoute>
-        ),
+        path: '/privacy-policy',
+        element: <PrivacyPolicyPage />,
       },
       {
-        path: '/manage/:id',
-        element: (
-          <ProtectedRoute>
-            <ManagePage />
-          </ProtectedRoute>
-        ),
+        element: <Layout />,
+        children: [
+          {
+            path: '/app',
+            element: (
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: '/play/:id',
+            element: (
+              <ProtectedRoute>
+                <PlayPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: '/editor/:id',
+            element: (
+              <ProtectedRoute>
+                <EditorPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: '/manage/:id',
+            element: (
+              <ProtectedRoute>
+                <ManagePage />
+              </ProtectedRoute>
+            ),
+          },
+        ],
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
       },
     ],
-  },
-  {
-    path: '*',
-    element: <NotFoundPage />,
   },
 ]);
 
 export default function App() {
-  return (
-    <ModalProvider>
-      <RouterProvider router={router} />
-    </ModalProvider>
-  );
+  return <RouterProvider router={router} />;
 }
