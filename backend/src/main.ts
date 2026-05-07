@@ -6,10 +6,7 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const configService = new ConfigService();
-  const nodeEnv = configService.get<string>('NODE_ENV');
-  const mode = configService.get<string>('MODE');
-  const isProd = nodeEnv === 'production' || mode === 'PROD';
+  const isProd = process.env.NODE_ENV === 'production' || process.env.MODE === 'PROD';
 
   const loggerLevels = isProd
     ? ['error', 'warn', 'log']
@@ -19,11 +16,12 @@ async function bootstrap() {
     logger: loggerLevels as any,
   });
 
+  const configService = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 
   // CORS: support comma-separated ALLOW_ORIGINS or fall back to FRONTEND_URL
-  const allowOriginsRaw = app.get(ConfigService).get<string>('ALLOW_ORIGINS');
-  const frontendUrl = app.get(ConfigService).get<string>('FRONTEND_URL') || 'http://localhost:3000';
+  const allowOriginsRaw = configService.get<string>('ALLOW_ORIGINS');
+  const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
   const origin = allowOriginsRaw
     ? allowOriginsRaw.split(',').map((s) => s.trim())
     : frontendUrl;
@@ -50,7 +48,7 @@ async function bootstrap() {
     logger.log('Swagger UI available at /docs');
   }
 
-  const port = app.get(ConfigService).get<number>('PORT') || 3001;
+  const port = configService.get<number>('PORT') || 3001;
   const host = '0.0.0.0';
   await app.listen(port, host);
 
