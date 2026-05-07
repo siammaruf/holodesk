@@ -8,6 +8,10 @@
       {
         "include": "i18n/**/*",
         "outDir": "dist"
+      },
+      {
+        "include": "generated/**/*",
+        "outDir": "dist"
       }
     ]
   }
