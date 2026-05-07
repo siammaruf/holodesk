@@ -26,7 +26,25 @@ import { ProfilesModule } from '../profiles/profiles.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    {
+      provide: GoogleStrategy,
+      useFactory: (
+        configService: ConfigService,
+        authService: AuthService,
+      ) => {
+        const clientID = configService.get<string>('GOOGLE_CLIENT_ID');
+        const clientSecret = configService.get<string>('GOOGLE_CLIENT_SECRET');
+        if (clientID && clientSecret) {
+          return new GoogleStrategy(configService, authService);
+        }
+        return null;
+      },
+      inject: [ConfigService, AuthService],
+    },
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}
