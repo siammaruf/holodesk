@@ -4,8 +4,10 @@ export async function request(url: string, params: Record<string, any> = {}, acc
         url = url.substring(1)
     }
 
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+    const backend_url = new URL(apiUrl).origin
     const queryString = new URLSearchParams(params).toString()
-    const fullUrl = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/${url}${queryString ? '?' + queryString : ''}`
+    const fullUrl = `${backend_url}/${url}${queryString ? '?' + queryString : ''}`
 
     const headers = new Headers();
     if (access_token) {

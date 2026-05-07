@@ -6,7 +6,8 @@ type ConnectionResponse = {
     errorMessage: string
 }
 
-const backend_url: string = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+const backend_url: string = new URL(apiUrl).origin
 
 class Server {
     public socket: Socket = io(backend_url, {
