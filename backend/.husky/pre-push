@@ -1,0 +1,1 @@
+node node_modules/typescript/bin/tsc --noEmit && node node_modules/eslint/bin/eslint.js "{src,apps,libs,test}/**/*.ts" && node node_modules/@nestjs/cli/bin/nest.js build
