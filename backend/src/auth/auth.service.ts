@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { ProfilesService } from '../profiles/profiles.service';
 import { User } from '../users/entities/user.entity';
+import { LoginDto, RegisterDto } from './dto/auth.dto';
+import * as bcrypt from 'bcryptjs';
 
 interface GoogleUserInput {
   googleId: string;
@@ -36,6 +38,46 @@ export class AuthService {
         google_id: input.googleId,
       });
       await this.profilesService.create(user.id);
+    }
+
+    return user;
+  }
+
+  async register(dto: RegisterDto): Promise<User> {
+    const existingEmail = await this.usersService.findByEmail(dto.email);
+    if (existingEmail) {
+      throw new ConflictException('Email already in use');
+    }
+
+    const existingUsername = await this.usersService.findByUsername(dto.username);
+    if (existingUsername) {
+      throw new ConflictException('Username already taken');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.usersService.create({
+      email: dto.email,
+      username: dto.username,
+      password: hashedPassword,
+      avatar_url: dto.avatar_url || null,
+    });
+
+    await this.profilesService.create(user.id);
+    return user;
+  }
+
+  async validateLocalUser(dto: LoginDto): Promise<User> {
+    const user = await this.usersService.findByEmail(dto.username) ||
+      await this.usersService.findByUsername(dto.username);
+
+    if (!user || !user.password) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const isMatch = await bcrypt.compare(dto.password, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     return user;

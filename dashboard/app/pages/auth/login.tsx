@@ -114,7 +114,7 @@ export default function Login() {
                         <FormControl>
                           <Checkbox
                             checked={field.value}
-                            onCheckedChange={field.onChange}
+                            onChange={(e) => field.onChange((e.target as HTMLInputElement).checked)}
                           />
                         </FormControl>
                         <FormLabel className="text-sm font-medium">

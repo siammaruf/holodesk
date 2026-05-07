@@ -17,10 +17,10 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "~/*": ["app/*"]
     },
     "types": ["vite/client"]
   },
-  "include": ["src"],
+  "include": ["app"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

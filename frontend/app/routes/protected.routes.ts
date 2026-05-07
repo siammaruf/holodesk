@@ -1,8 +1,8 @@
-import { route, index } from "@react-router/dev/routes";
+import { route } from "react-router-dom";
 
 export const protectedRoutes = [
-  index("pages/dashboard/index.tsx"),
-  route("profile", "pages/dashboard/profile.tsx"),
-  route("users", "pages/dashboard/users/index.tsx"),
-  route("users/create", "pages/dashboard/users/create.tsx"),
+  { path: "/app", element: "pages/dashboard/index.tsx" },
+  { path: "/play/:id", element: "pages/play/detail.tsx" },
+  { path: "/editor/:id", element: "pages/editor/detail.tsx" },
+  { path: "/manage/:id", element: "pages/manage/detail.tsx" },
 ];

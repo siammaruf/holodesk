@@ -1,19 +1,8 @@
-import { get, post, put, del } from '../httpMethods'
-import type { User } from '~/types/user'
+import { api } from '~/services/httpService';
 
-export const userService = {
-  getUsers: () =>
-    get<User[]>('/users'),
-
-  getUserById: (id: number) =>
-    get<User>(`/users/${id}`),
-
-  createUser: (user: Omit<User, 'id'>) =>
-    post<User>('/users', user),
-
-  updateUser: (id: number, user: Partial<User>) =>
-    put<User>(`/users/${id}`, user),
-
-  deleteUser: (id: number) =>
-    del<void>(`/users/${id}`),
-}
+export const profilesApi = {
+  me: () => api.get('/profiles/me'),
+  update: (data: { skin?: string }) => api.patch('/profiles/me', data),
+  addVisitedRealm: (shareId: string) =>
+    api.post('/profiles/visited-realms', { shareId }),
+};

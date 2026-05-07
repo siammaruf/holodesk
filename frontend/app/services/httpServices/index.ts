@@ -1,2 +1,3 @@
-export { authService } from './authService'
-export { userService } from './userService'
+export { authApi } from './authService'
+export { profilesApi } from './userService'
+export { realmsApi } from './realmService'

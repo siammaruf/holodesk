@@ -7,10 +7,24 @@ Three independent projects in one repo — no monorepo tooling:
 | Dir | Stack | Entry | Port | Alias |
 |-----|-------|-------|------|-------|
 | `backend/` | NestJS + PostgreSQL + Redis + Socket.io | `src/main.ts` | 3001 | — |
-| `frontend/` | React 19 + Vite (SPA) | `src/main.tsx` | 3000 | `@/` → `src/` |
+| `frontend/` | React 19 + Vite + Redux + TanStack Query | `app/main.tsx` | 3000 | `~/` → `app/` |
 | `dashboard/` | React Router 7 (SSR) | `app/root.tsx` | 5173 | `~/` → `app/` |
 
 Each project has its own `package.json`, `tsconfig.json`, and `node_modules`. Install and run commands separately per directory.
+
+## Architecture Guides
+
+Before working on any layer, read the relevant guide:
+
+- **React/Frontend**: `.opencode/react/guides/` — file organization, routing, data fetching, component patterns
+- **NestJS/Backend**: `.opencode/nestjs/guides/` — architecture, controllers, services, repositories, best practices
+
+Key guides:
+- `.opencode/react/guides/file-organization.md` — directory structure conventions
+- `.opencode/react/guides/routing-guide.md` — routing patterns
+- `.opencode/react/guides/data-fetching.md` — API service layer with Axios + TanStack Query
+- `.opencode/nestjs/guides/BEST-PRACTICES.md` — NestJS coding standards
+- `.opencode/nestjs/guides/BASE-CONTROLLER-GUIDE.md` — CRUD patterns
 
 ## Critical commands
 
@@ -53,6 +67,23 @@ cd frontend && npx tsc --noEmit
 # no lint script configured
 ```
 
+**Frontend directory structure** follows `.opencode/react/guides/file-organization.md`:
+- `app/pages/` — page components by route
+- `app/components/ui/` — Shadcn/UI primitives
+- `app/components/layout/` — layout components (Navbar, etc.)
+- `app/hooks/` — custom React hooks
+- `app/hooks/providers/` — context providers (Redux, TanStack Query)
+- `app/lib/` — utility libraries (`cn()`, query client)
+- `app/redux/` — Redux state management (store, slices, typed hooks)
+- `app/routes/` — route definitions
+- `app/services/` — API services
+  - `services/httpService.ts` — Axios orchestrator
+  - `services/httpMethods/` — HTTP method factories + interceptors
+  - `services/httpServices/` — domain-specific services
+- `app/styles/` — CSS files
+- `app/types/` — TypeScript type definitions
+- `app/utils/` — utility functions + validations
+
 ### Dashboard (React Router 7 SSR)
 ```bash
 cd dashboard && npm run dev
@@ -92,8 +123,7 @@ Read the relevant doc before working on a layer.
 
 Backend uses JWT + httpOnly cookie auth (`cookie-parser`, Passport JWT strategy).
 CORS is configured with `credentials: true`. Frontends use `axios` with
-`withCredentials: true` (check `requestInterceptor.ts` in dashboard).
-Env var: `VITE_API_URL` points to backend.
+`withCredentials: true` (check `requestInterceptor.ts` in services/httpMethods/).\nEnv var: `VITE_API_URL` points to backend.
 
 ## Git workflow
 
@@ -109,5 +139,6 @@ PRs target `dev`. The `/commit` slash command handles the full workflow
 - No CI/CD pipelines configured — local verification is the only guard.
 - Backend has husky hooks in `backend/.husky/` but they only apply to commits
   made inside the backend directory (not root-level commits).
-- The two React apps (`frontend/` and `dashboard/`) use different route
-  architectures: Vite SPA vs. React Router 7 SSR with file-based routes.
+- Both React apps (`frontend/` and `dashboard/`) use `~/` alias pointing to `app/`.
+- Frontend uses `react-router-dom` library mode with declarative routes in `App.tsx`;
+  the `routes.ts` file exists for forward-compatibility with React Router 7 framework mode.

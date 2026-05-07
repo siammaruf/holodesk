@@ -1,100 +1,69 @@
-import { Link } from "react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
-import { Users, Activity, CheckCircle, ArrowRight } from "lucide-react";
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '~/hooks/useAuth'
+import RealmsMenu from '~/components/dashboard/RealmsMenu/RealmsMenu'
+import { realmsApi } from '~/services/httpServices/realmService'
 
-export default function Dashboard() {
+interface Realm {
+  id: string
+  name: string
+  share_id: string
+  shared?: boolean
+}
+
+export default function App() {
+  const { user, loading } = useAuth()
+  const navigate = useNavigate()
+  const [realms, setRealms] = useState<Realm[]>([])
+  const [errorMessage, setErrorMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/signin')
+      return
+    }
+
+    if (user) {
+      fetchRealms()
+    }
+  }, [user, loading, navigate])
+
+  const fetchRealms = async () => {
+    try {
+      setIsLoading(true)
+      const allRealms: Realm[] = []
+
+      const { data: ownedRealms } = await realmsApi.list()
+      if (ownedRealms) {
+        allRealms.push(...ownedRealms)
+      }
+
+      const { data: visitedRealms } = await realmsApi.visited()
+      if (visitedRealms) {
+        allRealms.push(...visitedRealms)
+      }
+
+      setRealms(allRealms)
+    } catch (error: any) {
+      setErrorMessage(error?.response?.data?.message || 'Failed to load realms')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (loading || isLoading) {
+    return (
+      <div className='w-full h-screen grid place-items-center'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white'></div>
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Welcome back!</h2>
-        <p className="text-muted-foreground">
-          Here's an overview of your application
-        </p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Registered users</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1</div>
-            <p className="text-xs text-muted-foreground">Currently active</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">System Status</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">Healthy</div>
-            <p className="text-xs text-muted-foreground">All systems operational</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Link to="/admin/users">
-              <Button variant="outline" className="w-full justify-between">
-                Manage Users
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to="/admin/users/create">
-              <Button variant="outline" className="w-full justify-between">
-                Add New User
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to="/admin/profile">
-              <Button variant="outline" className="w-full justify-between">
-                Edit Profile
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Getting Started</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              This is a generic React starter kit. Customize this dashboard to fit your application needs.
-            </p>
-            <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-              <li>Authentication system with Redux state management</li>
-              <li>User management with CRUD operations</li>
-              <li>Form validation with React Hook Form and Zod</li>
-              <li>Responsive UI with Tailwind CSS and shadcn/ui</li>
-              <li>Type-safe API layer with TypeScript</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
+    <div>
+      <h1 className='text-3xl pl-4 sm:pl-8 pt-8'>Your Spaces</h1>
+      <RealmsMenu realms={realms} errorMessage={errorMessage} />
     </div>
-  );
+  )
 }

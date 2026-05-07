@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Res, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Res, UseGuards, Req, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { CurrentUser } from '../common/current-user.decorator';
 import { ConfigService } from '@nestjs/config';
+import { LoginDto, RegisterDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -12,6 +13,32 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
+
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  async register(@Body() dto: RegisterDto, @Res() res: Response) {
+    const user = await this.authService.register(dto);
+    const token = this.authService.signToken(user);
+    res.cookie('access_token', token, this.authService.getCookieOptions());
+    return res.json({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+    });
+  }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() dto: LoginDto, @Res() res: Response) {
+    const user = await this.authService.validateLocalUser(dto);
+    const token = this.authService.signToken(user);
+    res.cookie('access_token', token, this.authService.getCookieOptions());
+    return res.json({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+    });
+  }
 
   @Get('google')
   @UseGuards(AuthGuard('google'))

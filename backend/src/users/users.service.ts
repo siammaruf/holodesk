@@ -22,8 +22,17 @@ export class UsersService {
     return this.userRepository.findOne({ where: { google_id: googleId } });
   }
 
+  async findByUsername(username: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { username } });
+  }
+
   async create(data: Partial<User>): Promise<User> {
     const user = this.userRepository.create(data);
     return this.userRepository.save(user);
+  }
+
+  async update(id: string, data: Partial<User>): Promise<User> {
+    await this.userRepository.update(id, data);
+    return this.userRepository.findOneOrFail({ where: { id } });
   }
 }

@@ -1,13 +1,14 @@
-import type { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
-import { createErrorResponse } from '~/utils/errorHandler'
-import type { ApiError } from '~/types/api'
+import type { AxiosInstance } from 'axios'
 
 export function setupResponseInterceptor(instance: AxiosInstance): void {
   instance.interceptors.response.use(
-    (response: AxiosResponse) => response,
-    (error: AxiosError<ApiError>) => {
-      const errorResponse = createErrorResponse(error)
-      return Promise.reject(errorResponse)
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        // Token expired or invalid - redirect to login
+        window.location.href = '/signin'
+      }
+      return Promise.reject(error)
     }
   )
 }

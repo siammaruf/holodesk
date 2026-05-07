@@ -1,7 +1,5 @@
 import httpService from '../httpService'
-import type { AxiosRequestConfig } from 'axios'
 
-export async function post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
-  const response = await httpService.post<T>(url, data, config)
-  return response.data
+export function post<T>(url: string, data?: any): Promise<T> {
+  return httpService.post(url, data).then((res) => res.data)
 }
