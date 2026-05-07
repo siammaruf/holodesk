@@ -1,7 +1,19 @@
 #!/bin/sh
 set -e
 
-echo "Checking database connectivity..."
+IS_PROD=false
+if [ "${NODE_ENV}" = "production" ] || [ "${MODE}" = "PROD" ]; then
+  IS_PROD=true
+fi
+
+# Helper to echo only in non-production
+info() {
+  if [ "$IS_PROD" != "true" ]; then
+    echo "$@"
+  fi
+}
+
+info "Checking database connectivity..."
 MAX_RETRIES=10
 RETRY_COUNT=0
 
@@ -11,15 +23,22 @@ while ! pg_isready -h "${DATABASE_HOST:-localhost}" -p "${DATABASE_PORT:-5432}" 
     echo "ERROR: Database not ready after $MAX_RETRIES attempts. Exiting."
     exit 1
   fi
-  echo "Database not ready, waiting 3s... (attempt $RETRY_COUNT/$MAX_RETRIES)"
+  info "Database not ready, waiting 3s... (attempt $RETRY_COUNT/$MAX_RETRIES)"
   sleep 3
 done
 
-echo "Database is ready."
+info "Database is ready."
 
-echo "Running database migrations..."
-node ./node_modules/typeorm/cli.js migration:run -d ./dist/config/data-source.js
-echo "Migrations complete."
+if [ "$IS_PROD" = "true" ]; then
+  node ./node_modules/typeorm/cli.js migration:run -d ./dist/config/data-source.js > /dev/null 2>&1 || {
+    echo "ERROR: Database migrations failed. Exiting."
+    exit 1
+  }
+else
+  echo "Running database migrations..."
+  node ./node_modules/typeorm/cli.js migration:run -d ./dist/config/data-source.js
+  echo "Migrations complete."
+fi
 
-echo "Starting application..."
+info "Starting application..."
 exec node dist/main
