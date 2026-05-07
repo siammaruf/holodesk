@@ -8,16 +8,11 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const isProd = process.env.NODE_ENV === 'production' || process.env.MODE === 'PROD';
 
-  const loggerLevels = isProd
-    ? ['error', 'warn', 'log']
-    : ['error', 'warn', 'log', 'verbose', 'debug'];
-
   const app = await NestFactory.create(AppModule, {
-    logger: loggerLevels as any,
+    logger: isProd ? ['error', 'warn'] : ['error', 'warn', 'log', 'verbose', 'debug'],
   });
 
   const configService = app.get(ConfigService);
-  const logger = new Logger('Bootstrap');
 
   // CORS: support comma-separated ALLOW_ORIGINS or fall back to FRONTEND_URL
   const allowOriginsRaw = configService.get<string>('ALLOW_ORIGINS');
@@ -45,14 +40,20 @@ async function bootstrap() {
       .build();
     const document = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('docs', app, document);
-    logger.log('Swagger UI available at /docs');
   }
 
   const port = configService.get<number>('PORT') || 3001;
   const host = '0.0.0.0';
   await app.listen(port, host);
 
-  logger.log(`Server is running on http://${host}:${port}`);
-  logger.log(`Socket.io URL: ws://${host}:${port}`);
+  const startupMsg = `Server is running on http://${host}:${port} | Socket.io: ws://${host}:${port}`;
+  if (isProd) {
+    // eslint-disable-next-line no-console
+    console.log(startupMsg);
+  } else {
+    const logger = new Logger('Bootstrap');
+    logger.log(startupMsg);
+    logger.log('Swagger UI available at /docs');
+  }
 }
 bootstrap();
