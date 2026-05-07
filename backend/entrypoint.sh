@@ -5,7 +5,7 @@ echo "Checking database connectivity..."
 MAX_RETRIES=10
 RETRY_COUNT=0
 
-while ! pg_isready -h "$POSTGRES_HOST" -p "${POSTGRES_PORT:-5432}" -U "$POSTGRES_USER" -t 5 2>/dev/null; do
+while ! pg_isready -h "${DATABASE_HOST:-localhost}" -p "${DATABASE_PORT:-5432}" -U "${DATABASE_USERNAME:-postgres}" -t 5 2>/dev/null; do
   RETRY_COUNT=$((RETRY_COUNT + 1))
   if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
     echo "ERROR: Database not ready after $MAX_RETRIES attempts. Exiting."
