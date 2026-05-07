@@ -1,5 +1,7 @@
+export { setupRequestInterceptor } from './requestInterceptor'
+export { setupResponseInterceptor } from './responseInterceptor'
 export { get } from './get'
 export { post } from './post'
 export { put } from './put'
 export { patch } from './patch'
-export { del } from './delete'
+export { del as delete } from './delete'

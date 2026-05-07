@@ -1,6 +1,6 @@
-import { route, index } from "@react-router/dev/routes";
+import { route, index } from "react-router-dom";
 
 export const publicRoutes = [
-  index("pages/home.tsx"),
-  route("about", "pages/public/about.tsx"),
+  { path: "/", element: "pages/public/home.tsx" },
+  { path: "/privacy-policy", element: "pages/public/privacy-policy.tsx" },
 ];

@@ -25,6 +25,9 @@ export class User {
   @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
   google_id: string | null;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  password: string | null;
+
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
 
