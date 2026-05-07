@@ -1,7 +1,7 @@
 # Multi-stage build for optimized production image
 
 # Stage 1: Build
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -19,13 +19,14 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production
-FROM node:20-alpine AS production
+FROM node:24-alpine AS production
 
 # Set working directory
 WORKDIR /app
 
-# Set NODE_ENV
-ENV NODE_ENV=production
+# Set NODE_ENV from .env.docker
+ARG NODE_ENV=development
+ENV NODE_ENV=$NODE_ENV
 
 # Copy package files
 COPY package*.json ./
@@ -35,6 +36,9 @@ RUN npm ci --only=production && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
+
+# Copy env file
+COPY .env .env
 
 # Create logs directory
 RUN mkdir -p logs
