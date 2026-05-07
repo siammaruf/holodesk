@@ -18,7 +18,7 @@ done
 echo "Database is ready."
 
 echo "Running database migrations..."
-node ./node_modules/typeorm/cli.js migration:run -d ./dist/config/db.config.js
+node ./node_modules/typeorm/cli.js migration:run -d ./dist/config/data-source.js
 echo "Migrations complete."
 
 echo "Starting application..."
