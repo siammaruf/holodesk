@@ -24,10 +24,6 @@ FROM node:24-alpine AS production
 # Set working directory
 WORKDIR /app
 
-# Set NODE_ENV from .env.docker
-ARG NODE_ENV=development
-ENV NODE_ENV=$NODE_ENV
-
 # Copy package files
 COPY package*.json ./
 
@@ -37,18 +33,11 @@ RUN npm ci --only=production && npm cache clean --force
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Copy env file
-COPY .env .env
-
 # Create logs directory
 RUN mkdir -p logs
 
 # Expose port
-EXPOSE 4000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:4000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+EXPOSE 3000
 
 # Start the application
 CMD ["node", "dist/main"]
