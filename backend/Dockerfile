@@ -1,43 +1,34 @@
-# Multi-stage build for optimized production image
+FROM oven/bun:latest AS builder
 
-# Stage 1: Build
-FROM node:24-alpine AS builder
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy source code
+COPY package.json bun.lock* package-lock.json* ./
+RUN bun install
 COPY . .
+RUN bun run build
 
-# Build the application
-RUN npm run build
+FROM node:24.14.0-slim
 
-# Stage 2: Production
-FROM node:24-alpine AS production
+RUN apt-get update && apt-get install -y \
+    curl \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
-
-# Copy built application from builder stage
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/i18n ./src/i18n
+COPY --from=builder /app/src/generated ./src/generated
+COPY --from=builder /app/package.json ./package.json
 
-# Create logs directory
-RUN mkdir -p logs
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x entrypoint.sh && mkdir -p uploads
 
-# Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "dist/main"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/api/v1/health || exit 1
+
+ENTRYPOINT ["./entrypoint.sh"]
