@@ -10,6 +10,7 @@ import { RealmsModule } from './realms/realms.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { SocketModule } from './socket/socket.module';
 import { AiModule } from './ai/ai.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -24,5 +25,6 @@ import { AiModule } from './ai/ai.module';
     SocketModule,
     AiModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
