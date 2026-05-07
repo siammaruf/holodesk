@@ -5,6 +5,8 @@ import { Profile } from '../profiles/entities/profile.entity';
 import { Realm } from '../realms/entities/realm.entity';
 import { RealmEmbedding } from '../ai/entities/realm-embedding.entity';
 
+const isProd = () => process.env.NODE_ENV === 'production' || process.env.MODE === 'PROD';
+
 export const databaseConfig = (): TypeOrmModuleOptions => ({
   type: 'postgres',
   host: process.env.DATABASE_HOST || 'localhost',
@@ -13,8 +15,8 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   password: process.env.DATABASE_PASSWORD || 'password',
   database: process.env.DATABASE_NAME || 'holodesk',
   entities: [User, Profile, Realm, RealmEmbedding],
-  synchronize: process.env.NODE_ENV !== 'production',
-  logging: process.env.NODE_ENV !== 'production',
+  synchronize: !isProd(),
+  logging: !isProd(),
 });
 
 export const getDataSourceOptions = (configService?: ConfigService) => ({
