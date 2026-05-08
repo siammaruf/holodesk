@@ -10,12 +10,16 @@ import ManagePage from './pages/manage/detail';
 import PrivacyPolicyPage from './pages/public/privacy-policy';
 import NotFoundPage from './pages/not-found';
 import { Navbar } from './components/layout/Navbar';
+import ModalParent from './components/Modal/ModalParent';
 
 function Layout() {
   return (
-    <div>
+    <div className="relative min-h-screen flex flex-col">
       <Navbar />
-      <Outlet />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <ModalParent />
     </div>
   );
 }
@@ -24,7 +28,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) {
     return (
-      <div className="w-full h-screen grid place-items-center">
+      <div className="w-full h-dvh grid place-items-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
       </div>
     );

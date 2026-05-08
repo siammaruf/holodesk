@@ -50,7 +50,7 @@ const VideoBar:React.FC = () => {
     }, [remoteUsers])
 
     return (
-        <main className='absolute z-10 w-full flex flex-col items-center pt-2 top-0'>
+        <main className='absolute z-10 w-full flex flex-col items-center pt-2 top-0 left-0'>
             <section className='flex flex-row items-center gap-4' id='video-container'>
                 {Object.values(remoteUsers).map(user => (
                     <RemoteUser key={user.uid} user={user} />

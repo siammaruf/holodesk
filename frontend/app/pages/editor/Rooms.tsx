@@ -77,15 +77,20 @@ const Rooms:React.FC<RoomsProps> = ({ rooms, setRooms, roomIndex, setRoomIndex }
     }, [rooms])
 
     return (
-        <div className='flex flex-col items-center px-3 grow gap-2 w-full'>
-                <h1 className='w-full'>Rooms</h1>
-                <div className='flex flex-col items-center w-full overflow-y-auto max-h-[150px] gap-1 transparent-scrollbar' ref={roomsContainerRef}>
-                    {rooms.map((room, index) => <RoomItem rooms={rooms} selectedRoomIndex={roomIndex} roomIndex={index} roomName={room} setRooms={setRooms} key={index}/>)}
-                </div>
-                <BasicButton className='flex flex-row items-center gap-1 text-lg mb-4 w-full justify-center' onClick={onClickCreateRoom}>
-                    Create Room
-                    <PlusCircleIcon className='h-5 cursor-pointer hover:bg-darkblue animate-colors'/>
-                </BasicButton>
+        <div className='flex flex-col gap-2 p-4 w-full'>
+            <div className='flex flex-row items-center justify-between'>
+                <h2 className='text-sm font-medium text-white/60'>Rooms</h2>
+                <span className='text-xs text-white/30'>{rooms.length}/50</span>
+            </div>
+            <div className='flex flex-col w-full overflow-y-auto max-h-[140px] gap-1.5 transparent-scrollbar' ref={roomsContainerRef}>
+                {rooms.map((room, index) => (
+                    <RoomItem rooms={rooms} selectedRoomIndex={roomIndex} roomIndex={index} roomName={room} setRooms={setRooms} key={index}/>
+                ))}
+            </div>
+            <BasicButton className='flex flex-row items-center gap-2 text-sm w-full justify-center h-10 !rounded-xl !bg-[#4f46e5] hover:!bg-[#4338ca] shadow-lg shadow-indigo-500/20 mt-1' onClick={onClickCreateRoom}>
+                <PlusCircleIcon className='h-4 w-4'/>
+                Create Room
+            </BasicButton>
         </div>
     )
 }

@@ -7,6 +7,6 @@ export const Navbar:React.FC = () => {
     const { user } = useAuth()
 
     return (
-        <NavbarChild name={formatEmailToName(user?.email || '')} avatar_url={user?.avatar_url || '/google-logo.png'}/>
+        <NavbarChild name={formatEmailToName(user?.email || '')} avatar_url={user?.avatar_url || ''}/>
     )
 }

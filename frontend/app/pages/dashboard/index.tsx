@@ -54,7 +54,7 @@ export default function App() {
 
   if (loading || isLoading) {
     return (
-      <div className='w-full h-screen grid place-items-center'>
+      <div className='w-full h-dvh grid place-items-center'>
         <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white'></div>
       </div>
     )

@@ -101,15 +101,15 @@ const Editor:React.FC<EditorProps> = ({ realmData }) => {
     }, [gameLoaded])
 
     return (
-        <div className='relative w-full h-screen flex flex-col'>
+        <div className='relative w-full h-dvh flex flex-col overflow-hidden bg-[#0f0f1a]'>
             <TopBar />
-            <div className='w-full grow flex flex-row'>
+            <div className='w-full grow flex flex-row overflow-hidden'>
                 <LeftBar tool={tool} tileMode={tileMode} selectTool={selectTool} selectTileMode={selectTileMode} specialTile={specialTile} eraserLayer={eraserLayer} selectEraserLayer={selectEraserLayer}/>
                 <PixiEditor className='h-full grow' setGameLoaded={setGameLoaded} realmData={realmData}/>
-                <RightSection 
-                    selectedTile={selectedTile} 
-                    setSelectedTile={selectTile} 
-                    specialTile={specialTile} 
+                <RightSection
+                    selectedTile={selectedTile}
+                    setSelectedTile={selectTile}
+                    specialTile={specialTile}
                     selectSpecialTile={selectSpecialTile}
                     rooms={rooms}
                     setRooms={setRooms}

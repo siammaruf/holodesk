@@ -12,17 +12,20 @@ const backend_url: string = new URL(apiUrl).origin
 class Server {
     public socket: Socket = io(backend_url, {
         autoConnect: false,
+        withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 2000,
     })
     private connected: boolean = false
 
-    public async connect(realmId: string, uid: string, shareId: string, access_token: string) {
-        this.socket.io.opts.transportOptions = {
-            polling: {
-                extraHeaders: {
-                    'Authorization': `Bearer ${access_token}`
+    public async connect(realmId: string, uid: string, shareId: string, access_token?: string) {
+        if (access_token) {
+            this.socket.io.opts.transportOptions = {
+                polling: {
+                    extraHeaders: {
+                        'Authorization': `Bearer ${access_token}`
+                    }
                 }
             }
         }
