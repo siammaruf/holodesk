@@ -5,8 +5,10 @@ export function setupResponseInterceptor(instance: AxiosInstance): void {
     (response) => response,
     (error) => {
       if (error.response?.status === 401) {
-        // Token expired or invalid - redirect to login
-        window.location.href = '/signin'
+        // Token expired or invalid - redirect to login unless already there
+        if (window.location.pathname !== '/signin') {
+          window.location.href = '/signin'
+        }
       }
       return Promise.reject(error)
     }
