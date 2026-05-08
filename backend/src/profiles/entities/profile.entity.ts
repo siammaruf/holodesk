@@ -17,7 +17,7 @@ export class Profile {
   @Column({ type: 'varchar', length: 10, default: '009' })
   skin: string;
 
-  @Column({ type: 'simple-array', default: '' })
+  @Column({ type: 'varchar', nullable: true, default: '' })
   visited_realm_ids: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
