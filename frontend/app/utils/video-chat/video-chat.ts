@@ -20,6 +20,11 @@ export class VideoChat {
     private isScreenSharing: boolean = false
     private screenShareTrack: MediaStreamTrack | null = null
     private channelTimeout: ReturnType<typeof setTimeout> | null = null
+    private selectedAudioDevice: string = ''
+    private selectedVideoDevice: string = ''
+    private audioContext: AudioContext | null = null
+    private analyser: AnalyserNode | null = null
+    private analyserSource: MediaStreamAudioSourceNode | null = null
 
     private readonly iceServers: RTCIceServer[] = [
         { urls: 'stun:stun.l.google.com:19302' },
@@ -460,6 +465,114 @@ export class VideoChat {
 
     public getIsScreenSharing() {
         return this.isScreenSharing
+    }
+
+    public async getAudioDevices(): Promise<MediaDeviceInfo[]> {
+        try {
+            await navigator.mediaDevices.getUserMedia({ audio: true })
+            const devices = await navigator.mediaDevices.enumerateDevices()
+            return devices.filter((d) => d.kind === 'audioinput')
+        } catch (e) {
+            console.error('Failed to enumerate audio devices:', e)
+            return []
+        }
+    }
+
+    public async getVideoDevices(): Promise<MediaDeviceInfo[]> {
+        try {
+            await navigator.mediaDevices.getUserMedia({ video: true })
+            const devices = await navigator.mediaDevices.enumerateDevices()
+            return devices.filter((d) => d.kind === 'videoinput')
+        } catch (e) {
+            console.error('Failed to enumerate video devices:', e)
+            return []
+        }
+    }
+
+    public async switchAudioDevice(deviceId: string) {
+        this.selectedAudioDevice = deviceId
+        if (!this.localStream) return
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: { deviceId: { exact: deviceId } },
+            })
+            const newTrack = stream.getAudioTracks()[0]
+            const oldTrack = this.localStream.getAudioTracks()[0]
+
+            if (oldTrack) {
+                oldTrack.stop()
+                this.localStream.removeTrack(oldTrack)
+            }
+            this.localStream.addTrack(newTrack)
+
+            this.peers.forEach((peer) => {
+                const sender = peer.pc.getSenders().find((s) => s.track?.kind === 'audio')
+                if (sender) {
+                    sender.replaceTrack(newTrack)
+                }
+            })
+
+            this.setupAudioAnalyser()
+        } catch (e) {
+            console.error('Failed to switch audio device:', e)
+        }
+    }
+
+    public async switchVideoDevice(deviceId: string) {
+        this.selectedVideoDevice = deviceId
+        if (!this.localStream) return
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { deviceId: { exact: deviceId } },
+            })
+            const newTrack = stream.getVideoTracks()[0]
+            const oldTrack = this.localStream.getVideoTracks()[0]
+
+            if (oldTrack) {
+                oldTrack.stop()
+                this.localStream.removeTrack(oldTrack)
+            }
+            this.localStream.addTrack(newTrack)
+
+            this.peers.forEach((peer) => {
+                const sender = peer.pc.getSenders().find((s) => s.track?.kind === 'video')
+                if (sender) {
+                    sender.replaceTrack(newTrack)
+                }
+            })
+
+            this.playVideoTrackAtElementId('local-video')
+        } catch (e) {
+            console.error('Failed to switch video device:', e)
+        }
+    }
+
+    public setupAudioAnalyser() {
+        if (!this.localStream) return
+        const audioTrack = this.localStream.getAudioTracks()[0]
+        if (!audioTrack) return
+
+        if (!this.audioContext) {
+            this.audioContext = new AudioContext()
+        }
+        if (this.analyserSource) {
+            this.analyserSource.disconnect()
+        }
+
+        this.analyser = this.audioContext.createAnalyser()
+        this.analyser.fftSize = 64
+        this.analyserSource = this.audioContext.createMediaStreamSource(this.localStream)
+        this.analyserSource.connect(this.analyser)
+    }
+
+    public getAudioAnalyser(): AnalyserNode | null {
+        return this.analyser
+    }
+
+    public getLocalStream(): MediaStream | null {
+        return this.localStream
     }
 }
 

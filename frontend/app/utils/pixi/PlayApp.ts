@@ -35,14 +35,19 @@ export class PlayApp extends App {
         this.player = new Player(skin, this, username, true)
     }
 
-    override async loadRoom(index: number) {
+    override async loadRoom(index: number): Promise<boolean> {
         this.players = {}
-        await super.loadRoom(index)
+        const success = await super.loadRoom(index)
+        if (!success) {
+            console.error(`Failed to load room ${index}, aborting room setup.`)
+            return false
+        }
         this.setUpBlockedTiles()
         this.setUpFadeTiles()
         this.spawnLocalPlayer()
         await this.syncOtherPlayers()
         this.displayInitialChatMessage()
+        return true
     }
 
     private setUpFadeTiles = () => {
@@ -153,7 +158,10 @@ export class PlayApp extends App {
     public async init() {
         await super.init()
         await this.loadAssets()
-        await this.loadRoom(this.realmData.spawnpoint.roomIndex)
+        const loaded = await this.loadRoom(this.realmData.spawnpoint.roomIndex)
+        if (!loaded) {
+            throw new Error(`Spawn room ${this.realmData.spawnpoint.roomIndex} not found in realm data`)
+        }
         this.app.stage.eventMode = 'static'
         this.setScale(this.scale)
         this.app.renderer.on('resize', this.resizeEvent)

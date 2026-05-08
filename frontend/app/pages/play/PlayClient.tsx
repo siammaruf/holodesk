@@ -25,11 +25,12 @@ const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token,
     const { setErrorModal, setDisconnectedMessage } = useModal()
 
     const [showIntroScreen, setShowIntroScreen] = useState(true)
+    const [isTransitioning, setIsTransitioning] = useState(false)
 
     const [skin, setSkin] = useState(initialSkin)
 
     useEffect(() => {
-        const onShowKickedModal = (message: string) => { 
+        const onShowKickedModal = (message: string) => {
             setErrorModal('Disconnected')
             setDisconnectedMessage(message)
         }
@@ -54,23 +55,49 @@ const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token,
         }
     }, [])
 
+    const handleJoin = () => {
+        setIsTransitioning(true)
+        setTimeout(() => {
+            setShowIntroScreen(false)
+            setIsTransitioning(false)
+        }, 400)
+    }
+
     return (
         <VideoChatProvider uid={uid}>
-            {!showIntroScreen && <div className='relative w-full h-dvh flex flex-col-reverse sm:flex-col'>
-                <VideoBar />
-                <PixiApp 
-                    mapData={mapData} 
-                    className='w-full grow sm:h-full sm:flex-grow-0' 
-                    username={username} 
-                    access_token={access_token} 
-                    realmId={realmId} 
-                    uid={uid} 
-                    shareId={shareId} 
-                    initialSkin={skin} 
-                />
-                <PlayNavbar username={username} skin={skin}/>
-            </div>}
-            {showIntroScreen && <IntroScreen realmName={name} skin={skin} username={username} setShowIntroScreen={setShowIntroScreen}/>}    
+            <div className="relative w-full h-dvh overflow-hidden bg-[#0a0a12]">
+                {/* Game view */}
+                {!showIntroScreen && (
+                    <>
+                        <div className={`relative w-full h-dvh flex flex-col-reverse sm:flex-col ${!isTransitioning ? 'animate-fade-in-scale' : ''}`}>
+                            <VideoBar />
+                            <PixiApp
+                                mapData={mapData}
+                                className='w-full grow sm:h-full sm:flex-grow-0'
+                                username={username}
+                                access_token={access_token}
+                                realmId={realmId}
+                                uid={uid}
+                                shareId={shareId}
+                                initialSkin={skin}
+                            />
+                        </div>
+                        <PlayNavbar username={username} skin={skin}/>
+                    </>
+                )}
+
+                {/* Intro screen */}
+                {showIntroScreen && (
+                    <div className={`absolute inset-0 z-50 transition-opacity duration-400 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                        <IntroScreen
+                            realmName={name}
+                            skin={skin}
+                            username={username}
+                            setShowIntroScreen={handleJoin}
+                        />
+                    </div>
+                )}
+            </div>
         </VideoChatProvider>
     )
 }

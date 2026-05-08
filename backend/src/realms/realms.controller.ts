@@ -82,6 +82,7 @@ export class RealmsController {
       name: dto.name,
       only_owner: dto.only_owner,
       map_data: dto.map_data,
+      map_delta: dto.map_delta,
     });
   }
 

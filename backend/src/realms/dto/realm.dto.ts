@@ -10,6 +10,17 @@ export class CreateRealmDto {
   useDefaultMap?: boolean;
 }
 
+export class TileDeltaDto {
+  added?: Record<string, any>;
+  removed?: string[];
+}
+
+export class MapDeltaDto {
+  tileDeltas?: Record<number, TileDeltaDto>;
+  spawnpoint?: { roomIndex: number; x: number; y: number };
+  rooms?: any[];
+}
+
 export class UpdateRealmDto {
   @IsOptional()
   @IsString()
@@ -22,4 +33,7 @@ export class UpdateRealmDto {
 
   @IsOptional()
   map_data?: any;
+
+  @IsOptional()
+  map_delta?: MapDeltaDto;
 }
