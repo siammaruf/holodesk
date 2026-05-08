@@ -2,8 +2,27 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+
+class CustomIoAdapter extends IoAdapter {
+  createIOServer(port: number, options?: any) {
+    const allowOriginsRaw = process.env.ALLOW_ORIGINS;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const origin = allowOriginsRaw
+      ? allowOriginsRaw.split(',').map((s) => s.trim())
+      : frontendUrl;
+
+    return super.createIOServer(port, {
+      ...options,
+      cors: {
+        origin,
+        credentials: true,
+      },
+    });
+  }
+}
 
 async function bootstrap() {
   const isProd = process.env.NODE_ENV === 'production' || process.env.MODE === 'PROD';
@@ -28,6 +47,7 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useWebSocketAdapter(new CustomIoAdapter(app));
   app.setGlobalPrefix('api');
 
   // Swagger (disabled in production)
@@ -43,7 +63,7 @@ async function bootstrap() {
   }
 
   const port = configService.get<number>('PORT') || 3001;
-  const host = '0.0.0.0';
+  const host = '::';
   await app.listen(port, host);
 
   const startupMsg = `Server is running on http://${host}:${port} | Socket.io: ws://${host}:${port}`;

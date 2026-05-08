@@ -26,27 +26,39 @@ const RightSection:React.FC<RightSectionProps> = ({ selectedTile, setSelectedTil
     const [tab, setTab] = useState<Tab>('Tile')
 
     return (
-        <div className='w-[400px] bg-secondary flex flex-col select-none'>
-            <div className='flex flex-row h-10 px-2 pt-[4px]'>
-                <div 
-                    className={`grow hover:bg-darkblue animate-colors rounded-t-md cursor-pointer grid place-items-center select-none ${tab === 'Tile' ? 'pointer-events-none bg-light-secondary' : 'bg-secondary'}`}
+        <div className='w-[380px] bg-[#1a1a2e]/60 backdrop-blur-sm flex flex-col select-none border-l border-white/5 shrink-0 h-full overflow-hidden'>
+            <div className='flex flex-row h-11 px-2 pt-2 gap-1 shrink-0'>
+                <button
+                    className={`
+                        grow rounded-t-lg cursor-pointer grid place-items-center select-none text-sm font-medium transition-all duration-200
+                        ${tab === 'Tile'
+                            ? 'bg-[#252542] text-white shadow-sm'
+                            : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+                        }
+                    `}
                     onClick={() => setTab('Tile')}
                 >
                     Tiles
-                </div>
-                <div 
-                    className={`grow hover:bg-darkblue animate-colors rounded-t-md cursor-pointer grid place-items-center select-none ${tab === 'Special Tiles' ? 'pointer-events-none bg-light-secondary' : 'bg-secondary'}`}
+                </button>
+                <button
+                    className={`
+                        grow rounded-t-lg cursor-pointer grid place-items-center select-none text-sm font-medium transition-all duration-200
+                        ${tab === 'Special Tiles'
+                            ? 'bg-[#252542] text-white shadow-sm'
+                            : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+                        }
+                    `}
                     onClick={() => setTab('Special Tiles')}
                 >
                     Special Tiles
-                </div>
+                </button>
             </div>
-            <div className='bg-light-secondary h-[4px]'/>
-        <div>
+            <div className='bg-[#252542] h-[2px] shrink-0'/>
+            <div className='flex-1 overflow-hidden'>
                 {tab === 'Tile' && (
-                    <TileMenu 
-                        selectedTile={selectedTile} 
-                        setSelectedTile={setSelectedTile} 
+                    <TileMenu
+                        selectedTile={selectedTile}
+                        setSelectedTile={setSelectedTile}
                         rooms={rooms}
                         setRooms={setRooms}
                         roomIndex={roomIndex}
@@ -56,7 +68,11 @@ const RightSection:React.FC<RightSectionProps> = ({ selectedTile, setSelectedTil
                         setSelectedPalette={setSelectedPalette}
                     />
                 )}
-                {tab === 'Special Tiles' && <SpecialTiles specialTile={specialTile} selectSpecialTile={selectSpecialTile}/>}
+                {tab === 'Special Tiles' && (
+                    <div className='h-full overflow-y-auto transparent-scrollbar'>
+                        <SpecialTiles specialTile={specialTile} selectSpecialTile={selectSpecialTile}/>
+                    </div>
+                )}
             </div>
         </div>
     )

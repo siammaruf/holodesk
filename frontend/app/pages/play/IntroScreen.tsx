@@ -17,7 +17,7 @@ const IntroScreen:React.FC<IntroScreenProps> = ({ realmName, skin, username, set
     const src = '/sprites/characters/Character_' + skin + '.png'
 
     return (
-        <main className='dark-gradient w-full h-screen flex flex-col items-center pt-28'>
+        <main className='dark-gradient w-full h-dvh flex flex-col items-center pt-28'>
             <h1 className='text-4xl font-semibold'>Welcome to <span className='text-[#CAD8FF]'>{realmName}</span></h1>
             <section className='flex flex-row mt-32 items-center gap-24'>
                 <div className='flex flex-col items-center gap-4'>

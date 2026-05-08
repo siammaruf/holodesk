@@ -61,24 +61,30 @@ const TopBar:React.FC<TopBarProps> = () => {
     }
 
     return (
-        <div className='w-full h-[48px] bg-secondary flex flex-row items-center p-2 border-b-2 border-black gap-2 relative'>
-            <div className='hover:bg-light-secondary animate-colors aspect-square grid place-items-center rounded-lg p-1'>
+        <div className='w-full h-[52px] bg-[#1a1a2e]/80 backdrop-blur-md flex flex-row items-center px-4 border-b border-white/10 gap-3 relative shrink-0 z-10'>
+            <div className='hover:bg-white/10 animate-colors aspect-square grid place-items-center rounded-xl p-1.5 transition-all'>
                 <Link to='/app'>
-                    <ArrowLeftEndOnRectangleIcon className='h-8 w-8 text-white'/>
+                    <ArrowLeftEndOnRectangleIcon className='h-6 w-6 text-white/80 hover:text-white transition-colors'/>
                 </Link>
             </div>
-            <BasicButton onClick={beginSave} className='flex flex-row gap-2 items-center py-0 px-[8px] h-full '>
-                Save
-                <FloppyDisk className='h-6 w-6'/>
+            <BasicButton onClick={beginSave} className='flex flex-row gap-2 items-center py-0 px-4 h-9 !rounded-xl !bg-[#4f46e5] hover:!bg-[#4338ca] shadow-lg shadow-indigo-500/20 transition-all'>
+                <span className='font-medium'>Save</span>
+                <FloppyDisk className='h-4 w-4'/>
             </BasicButton>
-            <p className='text-xs italic'>Saving will kick any players that are online.</p>
-            <div className='absolute right-12 xl:right-[475px] hidden lg:flex flex-row gap-2 items-center'>
-                {barWidth > 0.9 && <p className='text-xs italic text-red-500'>{barWidth >= 1 ? "You're out of space!" : "You're running out of space!"}</p>}
-                <div className='w-80 h-[12px] rounded-md border-white border-[1px] overflow-hidden'>
-                    <div className={`${getBgColor()} h-full`} style={{
-                        width: barWidth * 100 + '%'
-                    }}/>
+            <p className='text-xs text-white/40 hidden sm:block'>Saving will kick any players that are online.</p>
+            <div className='ml-auto hidden lg:flex flex-row gap-3 items-center pr-2'>
+                {barWidth > 0.9 && (
+                    <p className='text-xs font-medium text-red-400 animate-pulse'>
+                        {barWidth >= 1 ? "You're out of space!" : "You're running out of space!"}
+                    </p>
+                )}
+                <div className='w-64 h-2 rounded-full bg-white/10 overflow-hidden'>
+                    <div
+                        className={`${getBgColor()} h-full rounded-full transition-all duration-500 ease-out`}
+                        style={{ width: `${Math.min(barWidth * 100, 100)}%` }}
+                    />
                 </div>
+                <span className='text-xs text-white/40 w-10 text-right'>{Math.round(barWidth * 100)}%</span>
             </div>
         </div>
     )

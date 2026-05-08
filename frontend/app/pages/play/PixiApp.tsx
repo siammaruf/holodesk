@@ -10,7 +10,7 @@ type PixiAppProps = {
     className?: string
     mapData: RealmData
     username: string
-    access_token: string
+    access_token?: string
     realmId: string
     uid: string
     shareId: string

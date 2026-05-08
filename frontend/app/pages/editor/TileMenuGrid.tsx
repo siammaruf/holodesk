@@ -29,14 +29,14 @@ const TileMenuGrid:React.FC<TileMenuGridProps> = ({ selectedPalette, selectedTil
         const tiles = []
         for (const spriteData of sprites.spriteSheetDataSet[selectedPalette].spritesList) {
             const spriteLayer = spriteData.layer || 'floor'
-            if (spriteLayer === layer) {
+            if (spriteLayer === layer && spriteData.name !== 'empty') {
                 tiles.push(
-                    <TileGridItem 
-                        sheetName={selectedPalette} 
-                        spriteName={spriteData.name} 
-                        selected={selectedTile.name === spriteData.name && selectedTile.palette === selectedPalette} 
-                        onClick={() => setSelectedTile({ name: spriteData.name, palette: selectedPalette })} 
-                        key={spriteData.name + tiles.length}
+                    <TileGridItem
+                        sheetName={selectedPalette}
+                        spriteName={spriteData.name}
+                        selected={selectedTile.name === spriteData.name && selectedTile.palette === selectedPalette}
+                        onClick={() => setSelectedTile({ name: spriteData.name, palette: selectedPalette })}
+                        key={`${selectedPalette}-${spriteData.name}-${tiles.length}`}
                     />
                 )
             }
@@ -48,15 +48,14 @@ const TileMenuGrid:React.FC<TileMenuGridProps> = ({ selectedPalette, selectedTil
     const tilesToDisplay = getTiles()
 
     return (
-        <div className='w-full h-[400px] overflow-y-scroll border-b-2 border-primary pb-2 transparent-scrollbar'>
-            {tilesToDisplay.length === 0 && <div className='text-center text-white'>No tiles in this category.</div>}
+        <div className='w-full h-full overflow-y-auto p-4 transparent-scrollbar'>
+            {tilesToDisplay.length === 0 && <div className='text-center text-white/40 text-sm py-8'>No tiles in this category.</div>}
             {!loading && (
-                <div className='grid grid-cols-3 w-full gap-2 pt-2'>
+                <div className='grid grid-cols-4 w-full gap-2'>
                     {tilesToDisplay}
                 </div>
             )}
         </div>
-        
     )
 }
 

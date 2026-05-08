@@ -27,7 +27,7 @@ const RoomItem:React.FC<RoomItemProps> = ({ rooms, selectedRoomIndex, roomIndex,
         signal.emit('changeRoom', roomIndex)
     }
 
-    const onTrashClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    const onTrashClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         setModal('Delete Room')
         setRoomToDelete({
@@ -42,7 +42,7 @@ const RoomItem:React.FC<RoomItemProps> = ({ rooms, selectedRoomIndex, roomIndex,
         signal.emit('changeRoomName', { index: roomIndex, newName: newValue })
     }
 
-    const onPencilClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    const onPencilClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         setInputDisabled(false)
         inputRef.current?.focus()
@@ -100,14 +100,39 @@ const RoomItem:React.FC<RoomItemProps> = ({ rooms, selectedRoomIndex, roomIndex,
     }, [rooms, roomIndex])
 
     return (
-        <div 
-            onClick={onRoomClick} 
-            className={`${selectedRoomIndex === roomIndex ? 'bg-light-secondary' : 'bg-darkblue cursor-pointer'} hover:bg-light-secondary w-full p-1 px-2 rounded-md flex flex-row items-center justify-between animate-colors`} 
+        <div
+            onClick={onRoomClick}
+            className={`
+                w-full px-3 py-2 rounded-lg flex flex-row items-center justify-between transition-all duration-200 group
+                ${selectedRoomIndex === roomIndex
+                    ? 'bg-white/10 text-white shadow-sm'
+                    : 'bg-white/5 text-white/60 hover:bg-white/[0.08] hover:text-white/80 cursor-pointer'
+                }
+            `}
         >
-            <input type='text' value={rooms[roomIndex]} className={`${inputDisabled ? 'pointer-events-none' : ''} grow bg-transparent outline-none select-none`} ref={inputRef} onChange={onInputChange} maxLength={32}/>
-            <div className='flex flex-row items-center gap-1'>
-                <PencilSquareIcon className='h-5 w-5 cursor-pointer hover:bg-darkblue rounded-md p-[2px] animate-colors' onClick={onPencilClick}/>
-                <Trash className={`h-5 w-5 cursor-pointer hover:bg-darkblue rounded-md p-[2px] animate-colors ${rooms.length <= 1 ? 'hidden' : ''}`} onClick={onTrashClick}/>
+            <input
+                type='text'
+                value={rooms[roomIndex]}
+                className={`${inputDisabled ? 'pointer-events-none' : ''} grow bg-transparent outline-none select-none text-sm truncate`}
+                ref={inputRef}
+                onChange={onInputChange}
+                maxLength={32}
+            />
+            <div className='flex flex-row items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity'>
+                <button
+                    className='p-1 rounded-md hover:bg-white/10 text-white/50 hover:text-white transition-colors'
+                    onClick={onPencilClick}
+                >
+                    <PencilSquareIcon className='h-3.5 w-3.5'/>
+                </button>
+                {rooms.length > 1 && (
+                    <button
+                        className='p-1 rounded-md hover:bg-red-500/20 text-white/50 hover:text-red-400 transition-colors'
+                        onClick={onTrashClick}
+                    >
+                        <Trash className='h-3.5 w-3.5'/>
+                    </button>
+                )}
             </div>
         </div>
     )

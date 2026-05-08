@@ -78,7 +78,7 @@ export class RealmsController {
     @Param('id') id: string,
     @Body() dto: UpdateRealmDto,
   ) {
-    return this.realmsService.update(user.userId, id, {
+    return this.realmsService.update(id, user.userId, {
       name: dto.name,
       only_owner: dto.only_owner,
       map_data: dto.map_data,

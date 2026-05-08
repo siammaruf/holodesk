@@ -14,7 +14,8 @@
     "start:prod": "bun dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "db:generate": "bunx typeorm-ts-node-commonjs migration:generate -d src/config/data-source.ts",
-    "db:migrate": "bunx typeorm-ts-node-commonjs migration:run -d src/config/data-source.ts"
+    "db:migrate": "bunx typeorm-ts-node-commonjs migration:run -d src/config/data-source.ts",
+    "db:seed": "ts-node src/database/seeds/user.seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.22",

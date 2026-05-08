@@ -71,7 +71,20 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(socket: Socket) {
     try {
-      const token = socket.handshake.auth?.token || socket.handshake.headers['authorization']?.toString().split(' ')[1];
+      const cookieHeader = socket.handshake.headers.cookie;
+      const cookies: Record<string, string> = {};
+      if (cookieHeader) {
+        cookieHeader.split(';').forEach((pair) => {
+          const [key, ...rest] = pair.trim().split('=');
+          cookies[key] = rest.join('=');
+        });
+      }
+
+      const token =
+        socket.handshake.auth?.token ||
+        socket.handshake.headers['authorization']?.toString().split(' ')[1] ||
+        cookies['access_token'];
+
       const uid = socket.handshake.query.uid as string;
 
       if (!token || !uid) {

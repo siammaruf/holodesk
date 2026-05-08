@@ -10,43 +10,58 @@ type TileGridItemProps = {
     onClick: () => void
 }
 
+const MAX_PREVIEW_SIZE = 64
+
 const TileGridItem: React.FC<TileGridItemProps> = ({ sheetName, spriteName, selected, onClick }) => {
+    const sprite = sprites.spriteSheetDataSet[sheetName].sprites[spriteName]
+    const sheet = sprites.spriteSheetDataSet[sheetName]
 
-    const Tile = () => {
-        const src = sprites.spriteSheetDataSet[sheetName].url
-        const { x, y, width, height } = sprites.spriteSheetDataSet[sheetName].sprites[spriteName]
-        const sheetWidth = sprites.spriteSheetDataSet[sheetName].width // Width of the whole sprite sheet
-        const sheetHeight = sprites.spriteSheetDataSet[sheetName]. height // Height of the whole sprite sheet
+    const { x, y, width, height } = sprite
+    const higherDimension = Math.max(width, height)
+    const scale = higherDimension > 0 ? MAX_PREVIEW_SIZE / higherDimension : 1
 
-        const higherDimension = Math.max(width, height)
-        const scale = 64 / higherDimension
-
-        return (
-            <div style={{
-                backgroundImage: `url(${src})`,
-                backgroundPosition: `-${x * scale}px -${y * scale}px`,
-                backgroundSize: `${sheetWidth * scale}px ${sheetHeight * scale}px`,
-                width: `${width * scale}px`,
-                height: `${height * scale}px`,
-                imageRendering: 'pixelated'
-            }}></div>
-        )
-    }
-
-    const TileOrEmpty = () => {
-        if (spriteName === 'empty') {
-            return <div className='w-full h-full'></div>
-        } else {
-            return <Tile />
-        }
-    }
+    const scaledWidth = Math.round(width * scale)
+    const scaledHeight = Math.round(height * scale)
+    // Use exact fractional pixels for background math so the sprite region stays perfectly aligned
+    const bgWidth = sheet.width * scale
+    const bgHeight = sheet.height * scale
+    const bgX = x * scale
+    const bgY = y * scale
 
     return (
-        <div className={`${spriteName === 'empty' ? 'pointer-events-none' : ''} w-full aspect-square hover:bg-light-secondary cursor-pointer rounded-lg flex flex-col items-center justify-between animate-colors ${selected ? 'bg-light-secondary' : ''}`} onClick={onClick}>
-            <div className='w-full grow grid place-items-center'>
-                <TileOrEmpty />
+        <div
+            className={`
+                w-full aspect-square cursor-pointer rounded-xl flex flex-col items-center justify-center
+                transition-all duration-200 ease-out
+                ${selected
+                    ? 'bg-white/10 ring-1 ring-white/20 shadow-lg shadow-black/20'
+                    : 'bg-white/5 hover:bg-white/[0.08] hover:ring-1 hover:ring-white/10'
+                }
+            `}
+            onClick={onClick}
+            title={spriteName}
+        >
+            <div className='w-full grow grid place-items-center p-2'>
+                <div
+                    data-sprite={spriteName}
+                    data-sheet={sheetName}
+                    data-scale={scale.toFixed(3)}
+                    data-bgwidth={bgWidth}
+                    data-bgheight={bgHeight}
+                    data-bgx={bgX}
+                    data-bgy={bgY}
+                    style={{
+                        backgroundImage: `url(${sheet.url})`,
+                        backgroundPosition: `-${bgX}px -${bgY}px`,
+                        backgroundSize: `${bgWidth}px ${bgHeight}px`,
+                        width: `${scaledWidth}px`,
+                        height: `${scaledHeight}px`,
+                        imageRendering: 'pixelated',
+                        backgroundRepeat: 'no-repeat',
+                        overflow: 'hidden',
+                    }}
+                />
             </div>
-            {/* <p className='text-sm'>{sprite}</p> */}
         </div>
     )
 }

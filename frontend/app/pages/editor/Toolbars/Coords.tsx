@@ -23,8 +23,8 @@ const Coords:React.FC<CoordsProps> = () => {
     }, [])
     
     return (
-        <div className='absolute bg-black rounded-lg text-white bottom-[12px] right-[420px] px-1 bg-opacity-50 pointer-events-none select-none'>
-            x:{coords.x} y:{coords.y}
+        <div className='absolute bottom-4 right-[400px] px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-lg text-white/70 text-xs font-mono pointer-events-none select-none border border-white/5 shadow-lg'>
+            x: {coords.x} &nbsp; y: {coords.y}
         </div>
     )
 }

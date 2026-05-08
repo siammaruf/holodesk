@@ -12,7 +12,7 @@ import { VideoChatProvider } from '~/hooks/useVideoChat'
 type PlayClientProps = {
     mapData: RealmData
     username: string
-    access_token: string
+    access_token?: string
     realmId: string
     uid: string
     shareId: string
@@ -56,7 +56,7 @@ const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token,
 
     return (
         <VideoChatProvider uid={uid}>
-            {!showIntroScreen && <div className='relative w-full h-screen flex flex-col-reverse sm:flex-col'>
+            {!showIntroScreen && <div className='relative w-full h-dvh flex flex-col-reverse sm:flex-col'>
                 <VideoBar />
                 <PixiApp 
                     mapData={mapData} 

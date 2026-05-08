@@ -28,7 +28,7 @@ const PlayNavbar:React.FC<PlayNavbarProps> = ({ username, skin }) => {
     }, [])
 
     return (
-        <div className='bg-primary w-full h-14 absolute bottom-0 flex flex-row items-center p-2 gap-4 select-none'>
+        <div className='bg-primary w-full h-14 absolute bottom-0 left-0 z-20 flex flex-row items-center p-2 gap-4 select-none'>
             <Link to='/app' className='aspect-square grid place-items-center rounded-lg p-1 outline-none bg-secondary hover:bg-light-secondary animate-colors'>
                 <ArrowLeftEndOnRectangleIcon className='h-8 w-8'/>
             </Link>

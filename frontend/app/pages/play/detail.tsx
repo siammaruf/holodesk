@@ -71,7 +71,7 @@ export default function Play() {
 
   if (loading || authLoading) {
     return (
-      <div className='w-full h-screen grid place-items-center'>
+      <div className='w-full h-dvh grid place-items-center'>
         <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white'></div>
       </div>
     )
@@ -85,7 +85,7 @@ export default function Play() {
     <PlayClient
       mapData={realm.map_data}
       username={formatEmailToName(user?.email || '')}
-      access_token={''}
+      access_token={undefined}
       realmId={id!}
       uid={user?.id || ''}
       shareId={shareId}
