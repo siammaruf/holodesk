@@ -66,6 +66,14 @@ export class Session {
     const spawnX = this.map_data.spawnpoint.x;
     const spawnY = this.map_data.spawnpoint.y;
 
+    // Ensure structures exist for the spawn room (handles malformed map_data)
+    if (!this.playerRooms[spawnIndex]) {
+      this.playerRooms[spawnIndex] = new Set<string>();
+    }
+    if (!this.playerPositions[spawnIndex]) {
+      this.playerPositions[spawnIndex] = {};
+    }
+
     const player: Player = {
       uid,
       username,
@@ -90,10 +98,15 @@ export class Session {
     if (!this.players[uid]) return;
 
     const player = this.players[uid];
-    this.playerRooms[player.room].delete(uid);
+    this.playerRooms[player.room]?.delete(uid);
 
     const coordKey = `${player.x}, ${player.y}`;
-    delete this.playerPositions[player.room][coordKey];
+    if (this.playerPositions[player.room]?.[coordKey]) {
+      this.playerPositions[player.room][coordKey].delete(uid);
+      if (this.playerPositions[player.room][coordKey].size === 0) {
+        delete this.playerPositions[player.room][coordKey];
+      }
+    }
 
     delete this.players[uid];
   }
@@ -103,11 +116,14 @@ export class Session {
 
     const player = this.players[uid];
 
-    this.playerRooms[player.room].delete(uid);
+    this.playerRooms[player.room]?.delete(uid);
+    if (!this.playerRooms[roomIndex]) {
+      this.playerRooms[roomIndex] = new Set<string>();
+    }
     this.playerRooms[roomIndex].add(uid);
 
     const coordKey = `${player.x}, ${player.y}`;
-    if (this.playerPositions[player.room][coordKey]) {
+    if (this.playerPositions[player.room]?.[coordKey]) {
       this.playerPositions[player.room][coordKey].delete(uid);
     }
 
@@ -144,20 +160,25 @@ export class Session {
   }
 
   public movePlayer(uid: string, x: number, y: number): string[] {
-    const oldCoordKey = `${this.players[uid].x}, ${this.players[uid].y}`;
-    if (this.playerPositions[this.players[uid].room][oldCoordKey]) {
-      this.playerPositions[this.players[uid].room][oldCoordKey].delete(uid);
+    const player = this.players[uid];
+    const oldCoordKey = `${player.x}, ${player.y}`;
+    const room = player.room;
+    if (this.playerPositions[room]?.[oldCoordKey]) {
+      this.playerPositions[room][oldCoordKey].delete(uid);
     }
 
-    this.players[uid].x = x;
-    this.players[uid].y = y;
+    player.x = x;
+    player.y = y;
 
     const coordKey = `${x}, ${y}`;
-    if (!this.playerPositions[this.players[uid].room][coordKey]) {
-      this.playerPositions[this.players[uid].room][coordKey] = new Set<string>();
+    if (!this.playerPositions[room]) {
+      this.playerPositions[room] = {};
+    }
+    if (!this.playerPositions[room][coordKey]) {
+      this.playerPositions[room][coordKey] = new Set<string>();
     }
 
-    this.playerPositions[this.players[uid].room][coordKey].add(uid);
+    this.playerPositions[room][coordKey].add(uid);
 
     return this.setProximityIdsWithPlayer(uid);
   }
@@ -170,7 +191,7 @@ export class Session {
     let otherPlayersExist = false;
 
     for (const tile of proximityTiles) {
-      const playersInTile = this.playerPositions[player.room][tile];
+      const playersInTile = this.playerPositions[player.room]?.[tile];
       if (!playersInTile) continue;
 
       for (const otherUid of playersInTile) {

@@ -53,6 +53,12 @@ export default function Play() {
         return
       }
 
+      if (!realmData.map_data?.rooms || realmData.map_data.rooms.length === 0) {
+        setError('This realm has no rooms. Please open it in the editor and add at least one room.')
+        setLoading(false)
+        return
+      }
+
       setRealm(realmData)
       setSkin(profile.skin || '009')
 

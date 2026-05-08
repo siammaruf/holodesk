@@ -38,11 +38,19 @@ export class EditorApp extends App {
     private spawnTile: PIXI.Sprite = new PIXI.Sprite()
 
     private currentPrivateAreaId: string = 'default'
+    private lastSavedRealmData: RealmData | null = null
 
     public async init() {
         this.backgroundColor = 0xFFFFFF
         await this.loadAssets()
         await super.init()
+
+        // Ensure at least one room exists so the editor can function
+        if (this.realmData.rooms.length === 0) {
+            this.realmData.rooms.push({ name: 'Main Room', tilemap: {} })
+            this.realmData.spawnpoint = { roomIndex: 0, x: 0, y: 0 }
+        }
+
         await this.loadRoom(this.currentRoomIndex)
 
         this.gizmoContainer.eventMode = 'static'
@@ -54,6 +62,8 @@ export class EditorApp extends App {
         this.setUpBeforeUnload()
         this.setUpInteraction()
         this.onSelectEraserLayer(this.eraserLayer)
+
+        this.lastSavedRealmData = JSON.parse(JSON.stringify(this.realmData))
     }
 
     override async loadRoomFromData(room: Room) {
@@ -1102,8 +1112,64 @@ export class EditorApp extends App {
         })
     }
 
+    private computeDelta = () => {
+        if (!this.lastSavedRealmData) return null
+
+        const delta: any = {}
+        let hasChanges = false
+
+        const s1 = this.lastSavedRealmData.spawnpoint
+        const s2 = this.realmData.spawnpoint
+        if (s1.roomIndex !== s2.roomIndex || s1.x !== s2.x || s1.y !== s2.y) {
+            delta.spawnpoint = s2
+            hasChanges = true
+        }
+
+        const roomsChanged =
+            this.lastSavedRealmData.rooms.length !== this.realmData.rooms.length ||
+            this.lastSavedRealmData.rooms.some((r: Room, i: number) => r.name !== this.realmData.rooms[i]?.name)
+
+        if (roomsChanged) {
+            delta.rooms = this.realmData.rooms
+            hasChanges = true
+        } else {
+            const tileDeltas: any = {}
+            for (let i = 0; i < this.realmData.rooms.length; i++) {
+                const savedTilemap = this.lastSavedRealmData.rooms[i].tilemap
+                const currentTilemap = this.realmData.rooms[i].tilemap
+
+                const added: any = {}
+                const removed: string[] = []
+
+                for (const [key, value] of Object.entries(currentTilemap)) {
+                    if (JSON.stringify(savedTilemap[key]) !== JSON.stringify(value)) {
+                        added[key] = value
+                    }
+                }
+
+                for (const key of Object.keys(savedTilemap)) {
+                    if (!(key in currentTilemap)) {
+                        removed.push(key)
+                    }
+                }
+
+                if (Object.keys(added).length > 0 || removed.length > 0) {
+                    tileDeltas[i] = { added, removed }
+                }
+            }
+
+            if (Object.keys(tileDeltas).length > 0) {
+                delta.tileDeltas = tileDeltas
+                hasChanges = true
+            }
+        }
+
+        return hasChanges ? delta : null
+    }
+
     private onBeginSave = () => {
-        signal.emit('save', this.realmData)
+        const delta = this.computeDelta()
+        signal.emit('save', delta ? { map_delta: delta } : null)
     }
 
     private onBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -1216,8 +1282,11 @@ export class EditorApp extends App {
         return this.tileMode
     }
     
-    private onSaved = () => {
+    private onSaved = (success: boolean) => {
         this.needsToSave = false
+        if (success) {
+            this.lastSavedRealmData = JSON.parse(JSON.stringify(this.realmData))
+        }
     }
 
     private onShowGizmos = (show: boolean) => {

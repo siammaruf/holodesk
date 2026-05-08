@@ -184,31 +184,37 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     const join = async () => {
-      if (!this.sessionsService.getSession(realmData.realmId)) {
-        this.sessionsService.createSession(realmData.realmId, realm.map_data);
+      try {
+        if (!this.sessionsService.getSession(realmData.realmId)) {
+          this.sessionsService.createSession(realmData.realmId, realm.map_data);
+        }
+
+        const currentSession = this.sessionsService.getPlayerSession(uid);
+        if (currentSession) {
+          this.kickPlayer(uid, 'You have logged in from another location.');
+        }
+
+        const user = this.users.get(uid);
+        const username = formatEmailToName(user.email);
+        this.sessionsService.addPlayerToSession(
+          socket.id,
+          realmData.realmId,
+          uid,
+          username,
+          profile.skin,
+        );
+        const newSession = this.sessionsService.getPlayerSession(uid);
+        const player = newSession.getPlayer(uid);
+
+        socket.join(realmData.realmId);
+        socket.emit('joinedRealm');
+        this.emit(socket, 'playerJoinedRoom', player);
+      } catch (err) {
+        console.error('Error during join:', err);
+        socket.emit('failedToJoinRoom', 'Internal server error.');
+      } finally {
+        this.joiningInProgress.delete(uid);
       }
-
-      const currentSession = this.sessionsService.getPlayerSession(uid);
-      if (currentSession) {
-        this.kickPlayer(uid, 'You have logged in from another location.');
-      }
-
-      const user = this.users.get(uid);
-      const username = formatEmailToName(user.email);
-      this.sessionsService.addPlayerToSession(
-        socket.id,
-        realmData.realmId,
-        uid,
-        username,
-        profile.skin,
-      );
-      const newSession = this.sessionsService.getPlayerSession(uid);
-      const player = newSession.getPlayer(uid);
-
-      socket.join(realmData.realmId);
-      socket.emit('joinedRealm');
-      this.emit(socket, 'playerJoinedRoom', player);
-      this.joiningInProgress.delete(uid);
     };
 
     if (realm.owner_id === uid) {

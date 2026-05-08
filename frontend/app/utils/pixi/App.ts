@@ -69,9 +69,15 @@ export class App {
         this.sortObjectsByY()
     }
 
-    protected async loadRoom(index: number) {
+    protected async loadRoom(index: number): Promise<boolean> {
         const room = this.realmData.rooms[index]
+        if (!room) {
+            console.warn(`Room at index ${index} not found`)
+            return false
+        }
+        this.currentRoomIndex = index
         await this.loadRoomFromData(room)
+        return true
     }
 
     private placeTileFromJson = async (x: number, y: number, layer: Layer, tileName: string) => {

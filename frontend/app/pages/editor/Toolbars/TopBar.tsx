@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import BasicButton from '~/components/BasicButton'
 import signal from '~/utils/signal'
 import { useModal } from '~/hooks/useModal'
-import { RealmData } from '~/types/pixi'
 import { toast } from 'react-toastify'
 import { FloppyDisk } from '@phosphor-icons/react'
 import { realmsApi } from '~/services/httpServices/realmService'
@@ -25,16 +24,25 @@ const TopBar:React.FC<TopBarProps> = () => {
     }
 
     useEffect(() => {
-        const save = async (realmData: RealmData) => {
+        const save = async (payload: { map_delta: any } | null) => {
+            if (!payload) {
+                setModal('None')
+                signal.emit('saved', true)
+                toast.success('Nothing to save')
+                return
+            }
+
+            let success = false
             try {
-                await realmsApi.update(id!, { map_data: realmData })
+                await realmsApi.update(id!, payload)
                 toast.success('Saved!')
+                success = true
             } catch (error: any) {
                 toast.error(error?.response?.data?.message || 'Failed to save')
             }
 
             setModal('None')
-            signal.emit('saved')
+            signal.emit('saved', success)
         }
 
         const onBarWidth = (width: number) => {

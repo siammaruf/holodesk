@@ -50,8 +50,8 @@ const VideoBar:React.FC = () => {
     }, [remoteUsers])
 
     return (
-        <main className='absolute z-10 w-full flex flex-col items-center pt-2 top-0 left-0'>
-            <section className='flex flex-row items-center gap-4' id='video-container'>
+        <main className='absolute z-10 w-full flex flex-col items-center pt-4 top-0 left-0 pointer-events-none'>
+            <section className='flex flex-row items-center gap-3 pointer-events-auto' id='video-container'>
                 {Object.values(remoteUsers).map(user => (
                     <RemoteUser key={user.uid} user={user} />
                 ))}
@@ -90,25 +90,46 @@ function RemoteUser({ user }: { user: RemoteUser }) {
     }, [user.stream])
 
     return (
-        <div className='w-[233px] h-[130px] bg-[#0f0f1d] bg-opacity-90 rounded-lg overflow-hidden relative'>
-            <div className='absolute w-full h-full grid place-items-center'>
-                <div className='w-[48px] h-[48px] bg-[#222222] rounded-full border-2 border-[#424A61] grid place-items-center overflow-hidden'>
-                    {skin && <AnimatedCharacter src={`/sprites/characters/Character_${skin}.png`} noAnimation className='w-full h-full relative bottom-1'/>}
+        <div className='w-[200px] h-[112px] rounded-2xl overflow-hidden relative
+            glass-strong
+            shadow-[0_4px_24px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.04)]
+            hover:shadow-[0_8px_32px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)]
+            transition-all duration-300 ease-out hover:-translate-y-0.5'>
+            {/* Avatar placeholder */}
+            <div className='absolute w-full h-full grid place-items-center z-[1]'>
+                <div className='w-12 h-12 rounded-full bg-white/[0.05] border border-white/[0.08] grid place-items-center overflow-hidden'>
+                    {skin && <AnimatedCharacter src={`/sprites/characters/Character_${skin}.png`} noAnimation className='w-10 h-10 relative bottom-1'/>}
                 </div>
             </div>
+
+            {/* Video stream */}
             {(user.cameraEnabled || user.isScreenSharing) && (
                 <video
                     ref={videoRef}
                     autoPlay
                     playsInline
-                    className='w-full h-full object-cover absolute top-0 left-0'
+                    className='w-full h-full object-cover absolute top-0 left-0 z-[2]'
                 />
             )}
-            <p className='absolute bottom-1 left-2 bg-black bg-opacity-70 rounded-full z-10 text-xs p-1 px-2 select-none flex flex-row items-center gap-1'>
-                {!user.micEnabled && <MicrophoneSlash className='w-3 h-3 text-[#FF2F49]' />}
-                {user.isScreenSharing && <Monitor className='w-3 h-3 text-[#08D6A0]' />}
-                {user.username}
-            </p>
+
+            {/* Bottom status bar */}
+            <div className='absolute bottom-0 left-0 right-0 z-[3]
+                bg-gradient-to-t from-black/80 to-transparent
+                px-3 py-2 flex items-center gap-1.5'>
+                {!user.micEnabled && (
+                    <div className="w-5 h-5 rounded-full bg-red-500/20 grid place-items-center">
+                        <MicrophoneSlash className='w-3 h-3 text-red-400' />
+                    </div>
+                )}
+                {user.isScreenSharing && (
+                    <div className="w-5 h-5 rounded-full bg-emerald-500/20 grid place-items-center">
+                        <Monitor className='w-3 h-3 text-emerald-400' />
+                    </div>
+                )}
+                <p className='text-[10px] font-medium text-white/80 truncate'>
+                    {user.username}
+                </p>
+            </div>
         </div>
     )
 }

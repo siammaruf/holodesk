@@ -14,27 +14,27 @@ type Message = {
 function getColorClass(color: Message['color']) {
     switch (color) {
         case 'red':
-            return 'text-red-500'
+            return 'text-red-400'
         case 'blue':
-            return 'text-blue-500'
+            return 'text-blue-400'
         case 'green':
-            return 'text-green-500'
+            return 'text-emerald-400'
         case 'yellow':
-            return 'text-yellow-500'
+            return 'text-amber-400'
         case 'purple':
-            return 'text-purple-500'
+            return 'text-violet-400'
         case 'pink':
-            return 'text-pink-500'
+            return 'text-pink-400'
         case 'orange':
-            return 'text-orange-500'
+            return 'text-orange-400'
         case 'cyan':
-            return 'text-cyan-500'
+            return 'text-cyan-400'
         case 'white':
-            return 'text-white'
+            return 'text-white/90'
         case 'black':
             return 'text-black'
         default:
-            return 'text-white'
+            return 'text-white/90'
     }
 }
 
@@ -75,24 +75,63 @@ const ChatLog: React.FC<ChatLogProps> = () => {
     }
 
     return (
-        <div className='absolute top-0 left-0 hidden sm:flex'>
+        <div className='absolute top-4 left-4 hidden sm:flex z-10'>
             {!expanded && (
-                <div
-                    className='bg-secondary hover:bg-light-secondary animate-colors p-2 grid place-items-center rounded-br-lg cursor-pointer'
+                <button
+                    className='glass-strong rounded-xl p-3 grid place-items-center
+                        hover:bg-white/[0.06] hover:scale-105 active:scale-95
+                        transition-all duration-200 ease-out group'
                     onClick={expand}
                 >
-                    <Chat className='h-7 w-7' />
-                </div>
+                    <Chat className='h-5 w-5 text-white/60 group-hover:text-white/90 transition-colors' />
+                    {messages.length > 0 && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-indigo-500 rounded-full text-[9px] font-bold grid place-items-center">
+                            {messages.length}
+                        </div>
+                    )}
+                </button>
             )}
             {expanded && (
-                <div className='bg-secondary bg-opacity-80 w-[500px] h-[200px] rounded-br-lg transparent-scrollbar relative p-1'>
-                    <div className='cursor-pointer absolute bottom-0 right-0 rounded-tl-lg rounded-br-lg bg-darkblue hover:bg-light-secondary animate-colors bg-opacity-80 p-2' onClick={collapse}>
-                        <ArrowUpLeft className='h-4 w-4' />
+                <div className='glass-strong w-[420px] h-[220px] rounded-2xl overflow-hidden
+                    shadow-[0_8px_32px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.04)]
+                    animate-fade-in-scale origin-top-left'>
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.05]">
+                        <div className="flex items-center gap-2">
+                            <Chat className="h-4 w-4 text-white/40" />
+                            <span className="text-xs font-medium text-white/60">Room Chat</span>
+                        </div>
+                        <button
+                            className='rounded-lg p-1.5 outline-none
+                                hover:bg-white/[0.08] hover:scale-105 active:scale-95
+                                transition-all duration-200 ease-out group'
+                            onClick={collapse}
+                        >
+                            <ArrowUpLeft className='h-3.5 w-3.5 text-white/40 group-hover:text-white/80 transition-colors' />
+                        </button>
                     </div>
-                    <div className='w-full h-full flex flex-col-reverse overflow-y-scroll p-2 pr-4'>
+
+                    {/* Messages */}
+                    <div className='w-full h-[calc(100%-40px)] flex flex-col-reverse overflow-y-scroll p-3 gap-1 transparent-scrollbar'>
+                        {messages.length === 0 && (
+                            <div className="flex-1 grid place-items-center">
+                                <div className="flex flex-col items-center gap-2 text-white/20">
+                                    <Chat className="h-8 w-8" />
+                                    <p className="text-xs">No messages yet</p>
+                                </div>
+                            </div>
+                        )}
                         {messages.map((message, index) => (
-                            <div key={index} className={getColorClass(message.color)}>
-                                {message.username && <span className='font-bold'>{message.username}:</span>} {message.content}
+                            <div
+                                key={index}
+                                className={`flex items-start gap-2 px-2 py-1.5 rounded-lg hover:bg-white/[0.03] transition-colors ${getColorClass(message.color)}`}
+                            >
+                                {message.username && (
+                                    <span className='font-semibold text-[11px] shrink-0 text-white/70 mt-[1px]'>
+                                        {message.username}:
+                                    </span>
+                                )}
+                                <span className="text-[11px] leading-relaxed text-white/80">{message.content}</span>
                             </div>
                         ))}
                     </div>

@@ -54,18 +54,52 @@ const SkinMenu:React.FC = () => {
 
     return (
         <Modal open={modal === 'Skin'} closeOnOutsideClick>
-            <div className='w-96 h-96 flex flex-col items-center justify-between pt-8'>
-                <p>{skinIndex + 1} / {skins.length}</p>
-                <AnimatedCharacter src={`/sprites/characters/Character_${skins[skinIndex]}.png`} className='w-48'/>
-                <div className='flex flex-row items-center justify-center gap-4 mb-12'>
-                    <button className='hover:bg-light-secondary animate-colors aspect-square grid place-items-center rounded-lg p-1 outline-none' onClick={decrement}>
-                        <ArrowFatLeft className='h-12 w-12'/>
+            <div className='w-[420px] h-[440px] flex flex-col items-center justify-between py-8 px-6'>
+                {/* Header */}
+                <div className="flex flex-col items-center gap-2">
+                    <h2 className="text-lg font-semibold text-white/90">Choose Your Character</h2>
+                    <div className="px-3 py-1 rounded-full bg-white/[0.05] border border-white/[0.06]">
+                        <p className="text-xs text-white/50 font-medium">{skinIndex + 1} / {skins.length}</p>
+                    </div>
+                </div>
+
+                {/* Character preview */}
+                <div className="relative w-full flex-1 flex items-center justify-center">
+                    {/* Decorative ring */}
+                    <div className="absolute w-48 h-48 rounded-full border border-white/[0.04]" />
+                    <div className="absolute w-64 h-64 rounded-full border border-white/[0.03]" />
+
+                    <div className="relative z-10 p-8 rounded-3xl bg-white/[0.02] border border-white/[0.05]">
+                        <AnimatedCharacter src={`/sprites/characters/Character_${skins[skinIndex]}.png`} className='w-32 h-32'/>
+                    </div>
+                </div>
+
+                {/* Navigation */}
+                <div className='flex flex-row items-center justify-center gap-4 w-full'>
+                    <button
+                        className='w-12 h-12 rounded-xl glass grid place-items-center outline-none
+                            hover:bg-white/[0.08] hover:scale-110 active:scale-95
+                            transition-all duration-200 ease-out group'
+                        onClick={decrement}
+                    >
+                        <ArrowFatLeft className='h-5 w-5 text-white/50 group-hover:text-white/80 transition-colors'/>
                     </button>
-                    <BasicLoadingButton onClick={handleSwitchSkinsClick} loading={loading}>
-                        Switch
+
+                    <BasicLoadingButton
+                        onClick={handleSwitchSkinsClick}
+                        loading={loading}
+                        className='flex-1 py-3 rounded-xl glow-button text-sm font-semibold'
+                    >
+                        Confirm Selection
                     </BasicLoadingButton>
-                    <button className='hover:bg-light-secondary animate-colors aspect-square grid place-items-center rounded-lg p-1 outline-none' onClick={increment}>
-                        <ArrowFatRight className='h-12 w-12'/>
+
+                    <button
+                        className='w-12 h-12 rounded-xl glass grid place-items-center outline-none
+                            hover:bg-white/[0.08] hover:scale-110 active:scale-95
+                            transition-all duration-200 ease-out group'
+                        onClick={increment}
+                    >
+                        <ArrowFatRight className='h-5 w-5 text-white/50 group-hover:text-white/80 transition-colors'/>
                     </button>
                 </div>
             </div>

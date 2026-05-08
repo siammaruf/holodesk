@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import cookieParser from 'cookie-parser';
+import { json, urlencoded } from 'body-parser';
 import { AppModule } from './app.module';
 
 class CustomIoAdapter extends IoAdapter {
@@ -45,6 +46,8 @@ async function bootstrap() {
     credentials: true,
   });
 
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ limit: '10mb', extended: true }));
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useWebSocketAdapter(new CustomIoAdapter(app));
