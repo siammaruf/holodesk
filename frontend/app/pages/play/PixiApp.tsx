@@ -1,10 +1,11 @@
 'use client'
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { PlayApp } from '~/utils/pixi/PlayApp'
 import { useEffect } from 'react'
 import { RealmData } from '~/types/pixi'
 import { useModal } from '~/hooks/useModal'
 import { server } from '~/utils/backend/server'
+import PlayerTags from './PlayerTags'
 
 type PixiAppProps = {
     className?: string
@@ -15,11 +16,13 @@ type PixiAppProps = {
     uid: string
     shareId: string
     initialSkin: string
+    avatarUrl?: string
 }
 
-const PixiApp:React.FC<PixiAppProps> = ({ className, mapData, username, access_token, realmId, uid, shareId, initialSkin }) => {
+const PixiApp:React.FC<PixiAppProps> = ({ className, mapData, username, access_token, realmId, uid, shareId, initialSkin, avatarUrl }) => {
 
     const appRef = useRef<PlayApp | null>(null)
+    const [playApp, setPlayApp] = useState<PlayApp | null>(null)
     const { setModal, setLoadingText, setFailedConnectionMessage, setErrorModal } = useModal()
 
     useEffect(() => {
@@ -37,6 +40,7 @@ const PixiApp:React.FC<PixiAppProps> = ({ className, mapData, username, access_t
 
             setLoadingText('Loading game...')
             await app.init()
+            setPlayApp(app)
             setModal('None')
             const pixiApp = app.getApp()
             
@@ -55,8 +59,8 @@ const PixiApp:React.FC<PixiAppProps> = ({ className, mapData, username, access_t
     }, [])
 
     return (
-        <div id='app-container' className={`overflow-hidden ${className}`}>
-            
+        <div id='app-container' className={`relative overflow-hidden ${className}`}>
+            {playApp && <PlayerTags playApp={playApp} avatarUrl={avatarUrl} />}
         </div>
     )
 }

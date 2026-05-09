@@ -8,7 +8,7 @@ import signal from '../signal'
 import { gsap } from 'gsap'
 
 export class PlayApp extends App {
-    private scale: number = 1.5
+    public scale: number = 1.5
     public player: Player
     public blocked: Set<TilePoint> = new Set()
     public keysDown: string[] = []

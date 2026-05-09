@@ -88,7 +88,7 @@ export default function Play() {
   }
 
   return (
-    <PlayClient
+      <PlayClient
       mapData={realm.map_data}
       username={formatEmailToName(user?.email || '')}
       access_token={undefined}
@@ -97,6 +97,7 @@ export default function Play() {
       shareId={shareId}
       initialSkin={skin}
       name={realm.name}
+      avatarUrl={user?.avatar_url}
     />
   )
 }

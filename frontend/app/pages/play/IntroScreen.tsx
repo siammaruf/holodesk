@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import BasicButton from '~/components/BasicButton'
 import AnimatedCharacter from './SkinMenu/AnimatedCharacter'
 import { useVideoChat } from '~/hooks/useVideoChat'
@@ -9,12 +9,37 @@ type IntroScreenProps = {
     realmName: string
     skin: string
     username: string
-    setShowIntroScreen: (show: boolean) => void
+    onJoin: (name: string) => void
 }
 
-const IntroScreen:React.FC<IntroScreenProps> = ({ realmName, skin, username, setShowIntroScreen }) => {
+const DISPLAY_NAME_KEY = 'holodesk_display_name'
+const BYPASS_KEY = 'holodesk_bypass_intro'
+
+const IntroScreen:React.FC<IntroScreenProps> = ({ realmName, skin, username, onJoin }) => {
 
     const src = '/sprites/characters/Character_' + skin + '.png'
+
+    const [displayName, setDisplayName] = useState(username)
+    const [bypassIntro, setBypassIntro] = useState(false)
+
+    useEffect(() => {
+        const savedName = localStorage.getItem(DISPLAY_NAME_KEY)
+        const savedBypass = localStorage.getItem(BYPASS_KEY)
+
+        if (savedName) {
+            setDisplayName(savedName)
+        }
+        if (savedBypass === 'true') {
+            setBypassIntro(true)
+        }
+    }, [])
+
+    const handleJoin = () => {
+        const finalName = displayName.trim() || username
+        localStorage.setItem(DISPLAY_NAME_KEY, finalName)
+        localStorage.setItem(BYPASS_KEY, String(bypassIntro))
+        onJoin(finalName)
+    }
 
     return (
         <main className='animated-bg w-full h-dvh flex flex-col items-center justify-center relative overflow-hidden'>
@@ -55,15 +80,15 @@ const IntroScreen:React.FC<IntroScreenProps> = ({ realmName, skin, username, set
                             </div>
                         </div>
 
-                        {/* Character column (card + join button) */}
-                        <div className="flex flex-col items-center justify-center gap-4 h-[240px] sm:h-[300px]">
+                        {/* Character column (card + input + checkbox + join button) */}
+                        <div className="flex flex-col items-center justify-center gap-3 w-full sm:w-auto mb-[70px]">
                             <div className="animate-fade-in-scale stagger-2 opacity-0">
-                                <div className='rounded-2xl p-6 flex flex-col items-center gap-5 min-w-[220px]'>
-                                    <div className='flex flex-col items-center gap-3'>
-                                        <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/[0.06] grid place-items-center overflow-hidden">
-                                            <AnimatedCharacter src={src} noAnimation className="w-16 h-16"/>
+                                <div className='rounded-2xl p-0 pb-2.5 flex flex-col items-center gap-5 min-w-[220px]'>
+                                    <div className='flex flex-row items-center gap-4'>
+                                        <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/[0.06] grid place-items-center overflow-hidden shrink-0">
+                                            <AnimatedCharacter src={src} noAnimation className="w-14 h-14"/>
                                         </div>
-                                        <div className="flex flex-col items-center gap-0.5">
+                                        <div className="flex flex-col items-start gap-0.5">
                                             <p className='text-white/90 font-medium text-sm'>{username}</p>
                                             <div className="flex items-center gap-1.5">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -74,11 +99,60 @@ const IntroScreen:React.FC<IntroScreenProps> = ({ realmName, skin, username, set
                                 </div>
                             </div>
 
+                            {/* Name input */}
+                            <div className="animate-fade-in-up stagger-2 opacity-0 w-full px-4 sm:px-0">
+                                <div className="relative group">
+                                    <input
+                                        type="text"
+                                        value={displayName}
+                                        onChange={(e) => setDisplayName(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+                                        placeholder="Enter your name"
+                                        className="w-full h-9 px-3 rounded-lg
+                                            bg-white/[0.04] border border-white/[0.08]
+                                            backdrop-blur-xl
+                                            text-white/90 text-sm placeholder:text-white/30
+                                            outline-none transition-all duration-300 ease-out
+                                            focus:bg-white/[0.08] focus:border-white/20 focus:shadow-[0_0_0_3px_rgba(100,120,255,0.15)]
+                                            hover:border-white/15"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Bypass checkbox */}
+                            <div className="animate-fade-in-up stagger-3 opacity-0 w-full px-4 sm:px-0">
+                                <label className="flex items-center gap-2 cursor-pointer group select-none">
+                                    <div className="relative flex items-center justify-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={bypassIntro}
+                                            onChange={(e) => setBypassIntro(e.target.checked)}
+                                            className="peer h-4 w-4 rounded border border-white/20 bg-white/5
+                                                appearance-none transition-all duration-200 cursor-pointer
+                                                checked:bg-indigo-500 checked:border-indigo-500
+                                                hover:border-white/30"
+                                        />
+                                        <svg
+                                            className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity duration-200"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            strokeWidth={3}
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-white/50 text-xs transition-colors duration-200 group-hover:text-white/70">
+                                        Skip this screen next time
+                                    </span>
+                                </label>
+                            </div>
+
                             {/* Join CTA */}
-                            <div className="animate-fade-in-up stagger-3 opacity-0 w-full">
+                            <div className="animate-fade-in-up stagger-3 opacity-0 w-full px-4 sm:px-0">
                                 <BasicButton
-                                    className='w-full py-3 px-6 rounded-xl glow-button text-sm font-semibold tracking-wide flex items-center justify-center gap-2'
-                                    onClick={() => setShowIntroScreen(false)}
+                                    className='w-full !p-2.5 rounded-xl glow-button text-sm font-semibold tracking-wide flex items-center justify-center gap-2'
+                                    onClick={handleJoin}
                                 >
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />

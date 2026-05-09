@@ -101,21 +101,6 @@ export class Player {
         this.changeAnimationState(this.animationState, true)
     }
 
-    private addUsername() {
-        const text = new PIXI.Text({
-            text: this.username,
-            style: {
-                fontFamily: 'silkscreen',
-                fontSize: 128,
-                fill: 0xFFFFFF,
-            }
-        })
-        text.anchor.set(0.5)
-        text.scale.set(0.07)
-        text.y = 8
-        this.parent.addChild(text)
-    }
-
     public setMessage(message: string) {
         if (this.textTimeout) {
             clearTimeout(this.textTimeout)
@@ -158,7 +143,6 @@ export class Player {
     public async init() {
         if (this.initialized) return
         await this.loadAnimations()
-        this.addUsername()
         this.initialized = true
     }
 
