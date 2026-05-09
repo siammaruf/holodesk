@@ -4,16 +4,21 @@ import { PlayApp } from '~/utils/pixi/PlayApp'
 type PlayerTagsProps = {
     playApp: PlayApp
     avatarUrl?: string
+    onLocalAvatarClick?: (rect: DOMRect) => void
 }
 
 function toTitleCase(str: string) {
     return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase())
 }
 
-export default function PlayerTags({ playApp, avatarUrl }: PlayerTagsProps) {
+export default function PlayerTags({ playApp, avatarUrl, onLocalAvatarClick }: PlayerTagsProps) {
     const containerRef = useRef<HTMLDivElement>(null)
     const tagElements = useRef<Map<string, HTMLDivElement>>(new Map())
     const rafId = useRef<number>(0)
+    const onLocalAvatarClickRef = useRef(onLocalAvatarClick)
+
+    // Keep callback ref fresh without triggering useEffect re-runs
+    onLocalAvatarClickRef.current = onLocalAvatarClick
 
     useEffect(() => {
         const container = containerRef.current
@@ -27,23 +32,66 @@ export default function PlayerTags({ playApp, avatarUrl }: PlayerTagsProps) {
 
         const createTagElement = (uid: string, username: string, isLocal: boolean) => {
             const wrapper = document.createElement('div')
-            wrapper.className = 'absolute pointer-events-none'
+            wrapper.className = isLocal ? 'absolute pointer-events-auto' : 'absolute pointer-events-none'
             wrapper.style.transform = 'translate(-50%, -100%)'
 
             const el = document.createElement('div')
             el.className =
-                'relative flex items-center gap-2 pl-1.5 pr-2.5 py-1 bg-black/40 backdrop-blur-xl border border-white/10 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.3)]'
+                'relative flex items-center gap-1 pl-1 pr-2.5 py-[3px] bg-black/40 backdrop-blur-xl border border-white/10 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.3)]'
 
             // Avatar (all players)
             const avatarWrapper = document.createElement('div')
-            avatarWrapper.className = 'relative shrink-0'
 
             const img = document.createElement('img')
             img.src = isLocal ? (avatarUrl || getDummyAvatar(username)) : getDummyAvatar(username)
             img.alt = ''
-            img.className = 'w-5 h-5 rounded-full object-cover ring-1 ring-white/20'
             img.onerror = () => {
                 img.src = getDummyAvatar(username)
+            }
+
+            if (isLocal) {
+                // Interactive local player avatar
+                avatarWrapper.className = 'relative shrink-0 pointer-events-auto'
+                avatarWrapper.style.cursor = 'pointer'
+                avatarWrapper.style.transition = 'all 200ms ease-out'
+                img.className = 'w-5 h-5 rounded-full object-cover'
+                img.style.transition = 'all 200ms ease-out'
+                img.style.boxShadow = '0 0 0 1px rgba(255,255,255,0.2)'
+
+                // Hover outline glow (behind the image)
+                const hoverOutline = document.createElement('div')
+                hoverOutline.className = 'absolute -inset-1 rounded-full pointer-events-none'
+                hoverOutline.style.opacity = '0'
+                hoverOutline.style.transition = 'opacity 200ms ease-out'
+                hoverOutline.style.boxShadow = 'inset 0 0 0 1.5px rgba(255,255,255,0.35), 0 0 12px rgba(255,255,255,0.2)'
+                avatarWrapper.appendChild(hoverOutline)
+
+                // Hover interactions
+                const onEnter = () => {
+                    img.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.4), 0 0 10px rgba(255,255,255,0.25)'
+                    img.style.filter = 'brightness(1.2)'
+                    hoverOutline.style.opacity = '1'
+                    avatarWrapper.style.backgroundColor = 'rgba(255,255,255,0.08)'
+                }
+                const onLeave = () => {
+                    img.style.boxShadow = '0 0 0 1px rgba(255,255,255,0.2)'
+                    img.style.filter = 'brightness(1)'
+                    hoverOutline.style.opacity = '0'
+                    avatarWrapper.style.backgroundColor = 'transparent'
+                }
+                avatarWrapper.addEventListener('mouseenter', onEnter)
+                avatarWrapper.addEventListener('mouseleave', onLeave)
+
+                // Click handler
+                avatarWrapper.addEventListener('click', (e) => {
+                    e.stopPropagation()
+                    const rect = avatarWrapper.getBoundingClientRect()
+                    onLocalAvatarClickRef.current?.(rect)
+                })
+            } else {
+                avatarWrapper.className = 'relative shrink-0'
+                img.className = 'w-5 h-5 rounded-full object-cover'
+                img.style.boxShadow = '0 0 0 1px rgba(255,255,255,0.2)'
             }
 
             avatarWrapper.appendChild(img)
@@ -52,7 +100,8 @@ export default function PlayerTags({ playApp, avatarUrl }: PlayerTagsProps) {
             if (isLocal) {
                 const dot = document.createElement('div')
                 dot.className =
-                    'absolute -bottom-[1px] -right-[1px] w-2 h-2 rounded-full bg-emerald-400 ring-[1.5px] ring-black/60 shadow-[0_0_6px_rgba(52,211,153,0.8)]'
+                    'absolute -bottom-[1px] -right-[1px] w-2 h-2 rounded-full bg-emerald-400 pointer-events-none'
+                dot.style.boxShadow = '0 0 0 2px rgba(0,0,0,0.6), 0 0 6px rgba(52,211,153,0.8)'
                 avatarWrapper.appendChild(dot)
             }
 
@@ -60,13 +109,13 @@ export default function PlayerTags({ playApp, avatarUrl }: PlayerTagsProps) {
 
             const nameSpan = document.createElement('span')
             nameSpan.className =
-                'text-white/90 text-[11px] font-medium whitespace-nowrap leading-none tracking-tight font-sans'
+                'text-white/90 text-[11px] font-medium whitespace-nowrap leading-none tracking-tight font-sans pointer-events-none'
             nameSpan.textContent = toTitleCase(username)
             el.appendChild(nameSpan)
 
             // Tooltip pointer
             const arrow = document.createElement('div')
-            arrow.className = 'absolute left-1/2 -bottom-[6px] -translate-x-1/2 w-3 h-3 bg-black/40 rotate-45'
+            arrow.className = 'absolute left-1/2 -bottom-[4px] -translate-x-1/2 w-2 h-2 bg-black/40 rotate-45 pointer-events-none'
             arrow.style.clipPath = 'polygon(100% 0, 0 100%, 100% 100%)'
             el.appendChild(arrow)
 
@@ -103,7 +152,7 @@ export default function PlayerTags({ playApp, avatarUrl }: PlayerTagsProps) {
                 const screenX = (player.parent.x - pivotX) * scale
                 const screenY = (player.parent.y - pivotY) * scale
                 el.style.left = `${screenX}px`
-                el.style.top = `${screenY - (38 * scale) - 4}px`
+                el.style.top = `${screenY - (38 * scale) - 3}px`
             }
 
             // Other players
@@ -123,7 +172,7 @@ export default function PlayerTags({ playApp, avatarUrl }: PlayerTagsProps) {
                 const screenX = (player.parent.x - pivotX) * scale
                 const screenY = (player.parent.y - pivotY) * scale
                 el.style.left = `${screenX}px`
-                el.style.top = `${screenY - (38 * scale) - 4}px`
+                el.style.top = `${screenY - (38 * scale) - 3}px`
             }
 
             // Remove disconnected players

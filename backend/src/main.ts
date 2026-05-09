@@ -84,12 +84,10 @@ async function bootstrap() {
     cyan: '\x1b[36m',
     yellow: '\x1b[33m',
   };
-  const link = (url: string, text: string) => `\x1b]8;;${url}\x1b\\${text}\x1b]8;;\x1b\\`;
-
   const lines = [
-    `${c.white}${c.bold}Server${c.reset}    ${c.green}${link(serverUrl, serverUrl)}${c.reset}`,
-    `${c.white}${c.bold}Socket${c.reset}    ${c.cyan}${link(socketUrl, socketUrl)}${c.reset}`,
-    `${c.white}${c.bold}Swagger${c.reset}   ${c.yellow}${link(swaggerUrl, swaggerUrl)}${c.reset}`,
+    `${c.white}${c.bold}Server${c.reset}    ${c.green}${serverUrl}${c.reset}`,
+    `${c.white}${c.bold}Socket${c.reset}    ${c.cyan}${socketUrl}${c.reset}`,
+    `${c.white}${c.bold}Swagger${c.reset}   ${c.yellow}${swaggerUrl}${c.reset}`,
   ];
 
   if (isProd) {

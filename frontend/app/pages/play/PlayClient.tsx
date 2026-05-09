@@ -19,9 +19,10 @@ type PlayClientProps = {
     initialSkin: string
     name: string
     avatarUrl?: string
+    createdAt?: string
 }
 
-const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token, realmId, uid, shareId, initialSkin, name, avatarUrl }) => {
+const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token, realmId, uid, shareId, initialSkin, name, avatarUrl, createdAt }) => {
 
     const { setErrorModal, setDisconnectedMessage } = useModal()
 
@@ -101,9 +102,10 @@ const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token,
                                 shareId={shareId}
                                 initialSkin={skin}
                                 avatarUrl={avatarUrl}
+                                createdAt={createdAt}
                             />
                         </div>
-                        <PlayNavbar username={displayName} skin={skin}/>
+                        <PlayNavbar username={displayName} skin={skin} avatarUrl={avatarUrl} createdAt={createdAt}/>
                     </>
                 )}
 
