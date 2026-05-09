@@ -19,6 +19,7 @@ export class ProfilesController {
       user_id: profile.user_id,
       skin: profile.skin,
       visited_realm_ids: this.profilesService.getVisitedRealmIds(profile),
+      created_at: profile.created_at,
     };
   }
 

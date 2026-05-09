@@ -16,6 +16,7 @@ export default function Play() {
 
   const [realm, setRealm] = useState<any>(null)
   const [skin, setSkin] = useState('009')
+  const [profileData, setProfileData] = useState<any>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -61,6 +62,7 @@ export default function Play() {
 
       setRealm(realmData)
       setSkin(profile.skin || '009')
+      setProfileData(profile)
 
       // Add to visited realms if shared and not owner
       if (shareId && realmData.owner_id !== user?.id) {
@@ -98,6 +100,7 @@ export default function Play() {
       initialSkin={skin}
       name={realm.name}
       avatarUrl={user?.avatar_url}
+      createdAt={profileData?.created_at}
     />
   )
 }
