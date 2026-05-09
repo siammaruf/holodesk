@@ -18,14 +18,16 @@ type PlayClientProps = {
     shareId: string
     initialSkin: string
     name: string
+    avatarUrl?: string
 }
 
-const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token, realmId, uid, shareId, initialSkin, name }) => {
+const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token, realmId, uid, shareId, initialSkin, name, avatarUrl }) => {
 
     const { setErrorModal, setDisconnectedMessage } = useModal()
 
     const [showIntroScreen, setShowIntroScreen] = useState(true)
     const [isTransitioning, setIsTransitioning] = useState(false)
+    const [displayName, setDisplayName] = useState(username)
 
     const [skin, setSkin] = useState(initialSkin)
 
@@ -55,7 +57,25 @@ const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token,
         }
     }, [])
 
-    const handleJoin = () => {
+    useEffect(() => {
+        const savedName = localStorage.getItem('holodesk_display_name')
+        const bypass = localStorage.getItem('holodesk_bypass_intro') === 'true'
+
+        if (savedName) {
+            setDisplayName(savedName)
+        }
+
+        if (bypass) {
+            setIsTransitioning(true)
+            setTimeout(() => {
+                setShowIntroScreen(false)
+                setIsTransitioning(false)
+            }, 400)
+        }
+    }, [])
+
+    const handleJoin = (joinedName: string) => {
+        setDisplayName(joinedName)
         setIsTransitioning(true)
         setTimeout(() => {
             setShowIntroScreen(false)
@@ -74,15 +94,16 @@ const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token,
                             <PixiApp
                                 mapData={mapData}
                                 className='w-full grow sm:h-full sm:flex-grow-0'
-                                username={username}
+                                username={displayName}
                                 access_token={access_token}
                                 realmId={realmId}
                                 uid={uid}
                                 shareId={shareId}
                                 initialSkin={skin}
+                                avatarUrl={avatarUrl}
                             />
                         </div>
-                        <PlayNavbar username={username} skin={skin}/>
+                        <PlayNavbar username={displayName} skin={skin}/>
                     </>
                 )}
 
@@ -93,7 +114,7 @@ const PlayClient:React.FC<PlayClientProps> = ({ mapData, username, access_token,
                             realmName={name}
                             skin={skin}
                             username={username}
-                            setShowIntroScreen={handleJoin}
+                            onJoin={handleJoin}
                         />
                     </div>
                 )}

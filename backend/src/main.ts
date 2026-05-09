@@ -69,14 +69,35 @@ async function bootstrap() {
   const host = '::';
   await app.listen(port, host);
 
-  const startupMsg = `Server is running on http://${host}:${port} | Socket.io: ws://${host}:${port}`;
+  const displayHost = isProd ? host : 'localhost';
+  const serverUrl = `http://${displayHost}:${port}`;
+  const socketUrl = `ws://${displayHost}:${port}`;
+  const swaggerUrl = `${serverUrl}/docs`;
+
+  // ANSI helpers
+  const c = {
+    reset: '\x1b[0m',
+    bold: '\x1b[1m',
+    dim: '\x1b[2m',
+    white: '\x1b[37m',
+    green: '\x1b[32m',
+    cyan: '\x1b[36m',
+    yellow: '\x1b[33m',
+  };
+  const link = (url: string, text: string) => `\x1b]8;;${url}\x1b\\${text}\x1b]8;;\x1b\\`;
+
+  const lines = [
+    `${c.white}${c.bold}Server${c.reset}    ${c.green}${link(serverUrl, serverUrl)}${c.reset}`,
+    `${c.white}${c.bold}Socket${c.reset}    ${c.cyan}${link(socketUrl, socketUrl)}${c.reset}`,
+    `${c.white}${c.bold}Swagger${c.reset}   ${c.yellow}${link(swaggerUrl, swaggerUrl)}${c.reset}`,
+  ];
+
   if (isProd) {
     // eslint-disable-next-line no-console
-    console.log(startupMsg);
+    lines.forEach((l) => console.log(l));
   } else {
     const logger = new Logger('Bootstrap');
-    logger.log(startupMsg);
-    logger.log('Swagger UI available at /docs');
+    lines.forEach((l) => logger.log(l));
   }
 }
 bootstrap();

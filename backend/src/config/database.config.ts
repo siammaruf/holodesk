@@ -16,7 +16,7 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   database: process.env.DATABASE_NAME || 'holodesk',
   entities: [User, Profile, Realm, RealmEmbedding],
   synchronize: !isProd(),
-  logging: !isProd(),
+  logging: false,
 });
 
 export const getDataSourceOptions = (configService?: ConfigService) => ({
